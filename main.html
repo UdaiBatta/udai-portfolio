@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Udai Batta — desktop</title>
+<script>
+/* ===== error trap: any crash is printed on the boot screen, never silent ===== */
+(function(){
+  function fail(msg){
+    var log=document.getElementById('bootLog'),bar=document.getElementById('bootFill');
+    if(bar)bar.style.background='#e07a80';
+    if(log){log.style.color='#ffb0b8';log.textContent+='\n'+msg;}
+  }
+  window.__bootFail=fail;
+  window.addEventListener('error',function(e){fail('ERROR: '+(e.message||'unknown')+'  (line '+e.lineno+')');});
+  window.addEventListener('unhandledrejection',function(e){fail('PROMISE: '+((e.reason&&e.reason.message)||e.reason));});
+  setTimeout(function(){
+    if(!window.__udai_ok)fail('script did not finish — the file is likely truncated. re-copy & save the FULL code.');
+  },4000);
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#10141f;
+  --panel:rgba(22,26,42,.94);
+  --p2:#20263f; --p2h:#2b3352; --p3:#171c30; --p4:#0f1424; --p5:#12172a;
+  --solid:#111524; --scrim:rgba(13,16,28,.9); --ov:rgba(16,20,31,.85);
+  --line:#48527a; --line-soft:#31395c; --line-2:#2a3150;
+  --ink:#edf0fa; --ink-dim:#aeb6d2; --ink-faint:#8189ad;
+  --gold:#f0c76a; --blue:#8fb8e6; --sage:#a9c9b4; --rose:#e3aec0; --red:#e07a80;
+  --icon-ink:#f2f4fb; --icon-sh:rgba(12,15,26,.85);
+  --c1:rgba(143,184,230,.35); --c2:rgba(143,184,230,.6); --c3:rgba(240,199,106,.55); --c4:#f0c76a;
+  --pixel:'Pixelify Sans',monospace; --body:'Space Grotesk',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+body[data-theme="day"]{
+  --panel:rgba(252,250,244,.95);
+  --p2:#f0ead9; --p2h:#e6dec8; --p3:#f7f3e8; --p4:#efe9d8; --p5:#f3efe2;
+  --solid:#faf7ee; --scrim:rgba(245,240,228,.92); --ov:rgba(245,240,228,.85);
+  --line:#a89a7a; --line-soft:#cfc5a9; --line-2:#d8d0b8;
+  --ink:#2c2820; --ink-dim:#5a5443; --ink-faint:#8b8471;
+  --gold:#b8862e; --blue:#4f7cae; --sage:#5f9070; --rose:#b06a88; --red:#c25254;
+  --icon-ink:#2b3350; --icon-sh:rgba(255,255,255,.75);
+  --c1:rgba(79,124,174,.3); --c2:rgba(79,124,174,.55); --c3:rgba(184,134,46,.4); --c4:#b8862e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:var(--body);color:var(--ink);font-size:14px}
+::selection{background:var(--gold);color:#221c0a}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--line-soft);border:2px solid var(--bg);border-radius:6px}
+::-webkit-scrollbar-track{background:transparent}
+.hidden{display:none!important}
+button{font-family:inherit}
+
+/* ============ BOOT ============ */
+#boot{position:fixed;inset:0;background:#0a0d16;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;cursor:pointer;transition:opacity .45s}
+#boot img{width:112px;image-rendering:pixelated;animation:bootBob 1.6s steps(2) infinite}
+@keyframes bootBob{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+.boot-title{font-family:var(--pixel);font-size:22px;letter-spacing:4px;color:#edf0fa}
+#bootLog{font-family:var(--mono);font-size:12px;line-height:1.75;color:#9bd0ba;min-height:190px;width:420px;white-space:pre-wrap}
+.boot-bar{width:340px;height:12px;border:1px solid #2a3150;padding:2px}
+.boot-bar i{display:block;height:100%;width:0;background:#f0c76a;transition:width .9s ease}
+.boot-skip{font-family:var(--pixel);font-size:11px;color:#4c5478;letter-spacing:1px}
+
+/* ============ LOGIN ============ */
+#login{position:fixed;inset:0;z-index:8500;overflow:hidden;transition:opacity .5s}
+#loginWall{position:absolute;inset:-4%;width:108%;height:108%;filter:blur(12px) brightness(.85) saturate(.95)}
+.login-time{position:absolute;top:34px;left:44px;font-family:var(--pixel);text-shadow:2px 2px 0 rgba(12,15,26,.6)}
+.login-time b{font-size:44px;font-weight:600;display:block;color:#edf0fa}
+.login-time span{font-size:15px;color:#d8dcea}
+.login-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+#avatarBtn{background:none;border:none;cursor:pointer;transition:transform .2s}
+#avatarBtn:hover{transform:scale(1.06) rotate(-1.5deg)}
+#avatarBtn img{width:80px;height:80px;image-rendering:pixelated;border-radius:50%;border:3px solid rgba(255,255,255,.92);box-shadow:0 10px 30px rgba(12,15,26,.45)}
+.login-name{font-family:var(--pixel);font-size:22px;color:#fff;text-shadow:2px 2px 0 rgba(12,15,26,.6)}
+#signinBtn{font-family:var(--pixel);font-size:13px;padding:8px 26px;background:rgba(22,26,42,.88);color:#edf0fa;border:1px solid #48527a;border-radius:6px;cursor:pointer;box-shadow:2px 2px 0 rgba(0,0,0,.35);transition:.15s}
+#signinBtn:hover{background:#2c3352;border-color:#f0c76a;transform:translateY(-1px)}
+#welcome{display:flex;flex-direction:column;align-items:center;gap:14px;font-family:var(--pixel);font-size:18px;color:#fff;text-shadow:2px 2px 0 rgba(12,15,26,.6)}
+.spinner{display:flex;gap:6px}
+.spinner i{width:10px;height:10px;background:#f0c76a;animation:spinSq .9s ease-in-out infinite}
+.spinner i:nth-child(2){animation-delay:.15s;background:#8fb8e6}
+.spinner i:nth-child(3){animation-delay:.3s;background:#a9c9b4}
+@keyframes spinSq{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.login-hint{position:absolute;bottom:34px;left:0;right:0;text-align:center;font-family:var(--pixel);font-size:12px;color:#fff;opacity:.85;text-shadow:1px 1px 0 rgba(12,15,26,.7)}
+#loginPower{position:absolute;bottom:26px;right:30px;background:none;border:none;cursor:pointer;opacity:.8;transition:.15s}
+#loginPower:hover{opacity:1;transform:translateY(-2px)}
+#loginPower img{width:26px;image-rendering:pixelated}
+
+/* ============ DESKTOP ============ */
+#desktop{position:fixed;inset:0;opacity:1}
+/* oversized so parallax never exposes an edge */
+#wall{position:absolute;left:-30px;top:-30px;width:calc(100% + 60px);height:calc(100% + 60px);display:block;transition:opacity .3s}
+#wall *{shape-rendering:crispEdges}
+@keyframes cloudDrift{from{transform:translateX(-9px)}to{transform:translateX(9px)}}
+.drift{animation:cloudDrift 28s ease-in-out infinite alternate}
+.tw{animation:twinkle 9s steps(1) infinite}
+@keyframes twinkle{0%,92%{opacity:1}96%{opacity:.2}100%{opacity:1}}
+.bird{animation:flyby var(--t,50s) linear infinite}
+@keyframes flyby{from{transform:translateX(-130px)}to{transform:translateX(1090px)}}
+@keyframes flap{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
+.bird .wf{animation:flap .6s steps(2,end) infinite}
+.shoot{opacity:0;animation:shoot 13s linear infinite}
+@keyframes shoot{0%,86%{transform:translate(0,0);opacity:0}87%{opacity:1}96%{transform:translate(-210px,84px);opacity:0}100%{opacity:0}}
+.catTail{transform-box:fill-box;transform-origin:left bottom;animation:tailWag 5s ease-in-out infinite}
+@keyframes tailWag{0%,100%{transform:rotate(0deg)}50%{transform:rotate(16deg)}}
+#wall .pettable{cursor:pointer}
+
+#petals{position:absolute;inset:0;z-index:15;pointer-events:none;overflow:hidden}
+.petal{position:absolute;top:-3vh;animation:fall linear infinite}
+@keyframes fall{to{transform:translateY(112vh)}}
+@keyframes sway{from{transform:translateX(-12px) rotate(0deg)}to{transform:translateX(12px) rotate(90deg)}}
+
+/* icons */
+#icons{position:absolute;top:16px;left:12px;bottom:60px;display:grid;grid-template-rows:repeat(6,104px);grid-auto-flow:column;grid-auto-columns:96px;z-index:2}
+.icon{width:92px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;border:1px solid transparent;border-radius:8px;user-select:none;opacity:0;transition:background .15s,border-color .15s}
+#desktop.ready .icon{animation:iconIn .45s ease forwards;animation-delay:var(--d)}
+@keyframes iconIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.icon img{width:56px;image-rendering:pixelated;transition:filter .18s;will-change:transform}
+.icon span{font-family:var(--pixel);font-size:12px;color:var(--icon-ink);text-shadow:1px 1px 0 var(--icon-sh);padding:2px 6px;border-radius:4px;white-space:nowrap}
+.icon:hover{background:rgba(240,199,106,.1);border-color:rgba(240,199,106,.35)}
+body[data-theme="day"] .icon:hover{background:rgba(184,134,46,.08);border-color:rgba(184,134,46,.35)}
+.icon:hover img{filter:drop-shadow(0 8px 8px rgba(8,10,18,.35)) brightness(1.08)}
+.icon.sel{background:rgba(143,184,230,.12);border-color:rgba(143,184,230,.4)}
+body[data-theme="day"] .icon.sel{background:rgba(79,124,174,.1);border-color:rgba(79,124,174,.4)}
+
+/* windows */
+#winlayer{position:absolute;inset:0;z-index:10;pointer-events:none}
+.win{position:absolute;pointer-events:auto;display:flex;flex-direction:column;min-width:280px;min-height:170px;
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  backdrop-filter:blur(9px);box-shadow:0 18px 55px rgba(6,8,16,.45);
+  animation:winIn .24s cubic-bezier(.2,.9,.3,1.1)}
+body[data-theme="day"] .win{box-shadow:0 18px 45px rgba(90,80,50,.22)}
+@keyframes winIn{from{transform:scale(.9) translateY(16px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.win.focus{border-color:var(--ink-faint);box-shadow:0 22px 65px rgba(6,8,16,.6),0 0 0 1px rgba(240,199,106,.22)}
+body[data-theme="day"] .win.focus{box-shadow:0 22px 55px rgba(90,80,50,.3),0 0 0 1px rgba(184,134,46,.3)}
+.win.closing{transition:transform .22s ease,opacity .22s ease;transform:scale(.88) translateY(10px);opacity:0}
+.win.minimizing{transition:transform .28s ease,opacity .28s ease;transform:translateY(58vh) scale(.15);opacity:0}
+.win.max{left:-30px!important;top:-30px!important;width:calc(100% + 60px)!important;height:calc(100% + 16px)!important;border-radius:0}
+.win.max .rsz{display:none}
+.tbar{display:flex;align-items:center;gap:9px;height:37px;flex:0 0 auto;padding:0 8px 0 12px;background:var(--p2);border-bottom:1px solid var(--line-soft);cursor:grab;user-select:none}
+.tbar:active{cursor:grabbing}
+.win.focus .tbar{background:var(--p2h)}
+.ticon{width:16px;height:16px;image-rendering:pixelated}
+.ttitle{font-family:var(--pixel);font-size:13px;letter-spacing:.4px;color:var(--ink-dim);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.win.focus .ttitle{color:var(--ink)}
+.tbtns{display:flex;gap:6px}
+.wbtn{width:20px;height:20px;border:1px solid var(--line);background:var(--p2);border-radius:4px;position:relative;cursor:pointer;transition:.15s;padding:0}
+.wbtn:hover{background:var(--p2h);transform:translateY(-1px)}
+.wbtn:active{transform:translateY(0) scale(.94)}
+.btn-min::after{content:'';position:absolute;left:5px;right:5px;bottom:4px;height:2px;background:var(--ink-dim)}
+.btn-max::after{content:'';position:absolute;inset:4px 5px;border:2px solid var(--ink-dim)}
+.win.max .btn-max::after{inset:3px 6px 6px 3px;border-width:2px;box-shadow:3px -3px 0 -1px var(--ink-dim),3px -3px 0 0 var(--ink-dim)}
+.btn-close{background:#9c4a58;border-color:#c05a68}
+.btn-close::before,.btn-close::after{content:'';position:absolute;left:3px;right:3px;top:8px;height:2px;background:#fff}
+.btn-close::before{transform:rotate(45deg)}
+.btn-close::after{transform:rotate(-45deg)}
+.btn-close:hover{background:var(--red)}
+.wbody{flex:1;overflow:auto;padding:18px 20px;position:relative}
+.wbody.pad0{padding:0;overflow:hidden}
+.rsz{position:absolute;right:0;bottom:0;width:20px;height:20px;cursor:nwse-resize;z-index:6;touch-action:none}
+.rsz::after{content:'';position:absolute;right:3px;bottom:3px;width:9px;height:9px;border-right:2px solid var(--ink-faint);border-bottom:2px solid var(--ink-faint);opacity:.55;transition:opacity .15s}
+.rsz:hover::after{opacity:1}
+.win.focus .rsz::after{opacity:1;border-color:var(--gold)}
+
+/* generic ui */
+.h3{font-family:var(--pixel);font-size:15px;font-weight:600;letter-spacing:.4px;display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.h3::before{content:'';width:8px;height:8px;background:var(--gold);flex:0 0 auto}
+.mut{color:var(--ink-dim)}
+.btn{font-family:var(--pixel);font-size:12.5px;color:var(--ink);background:var(--p2);border:1px solid var(--line);padding:7px 15px;cursor:pointer;box-shadow:2px 2px 0 rgba(0,0,0,.22);border-radius:4px;transition:.15s;text-decoration:none;display:inline-block}
+.btn:hover{background:var(--p2h);transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(0,0,0,.22)}
+.btn:active{transform:translate(1px,1px);box-shadow:none}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#241c08}
+.btn.gold:hover{filter:brightness(1.07)}
+.chip{display:inline-block;border:1px solid var(--line-soft);background:var(--p2);padding:3px 10px;font-family:var(--mono);font-size:11px;color:var(--ink-dim);border-radius:4px;margin:0 6px 6px 0}
+.chip.gold{border-color:var(--gold);color:var(--gold)}
+.hr{height:1px;background:var(--line-soft);margin:16px 0;border:none}
+
+/* taskbar */
+#taskbar{position:absolute;left:0;right:0;bottom:0;height:44px;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--scrim);backdrop-filter:blur(12px);border-top:1px solid var(--line-2);z-index:50;user-select:none;transform:translateY(100%);transition:transform .55s ease .15s}
+#desktop.ready #taskbar{transform:none}
+#startBtn{width:40px;height:34px;background:transparent;border:1px solid transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+#startBtn:hover,#startBtn.on{background:var(--p2);border-color:var(--line-soft)}
+.logo4{display:grid;grid-template-columns:8px 8px;gap:2px}
+.logo4 i{width:8px;height:8px;display:block}
+.logo4 i:nth-child(1){background:var(--gold)}.logo4 i:nth-child(2){background:var(--blue)}
+.logo4 i:nth-child(3){background:var(--sage)}.logo4 i:nth-child(4){background:var(--rose)}
+#tasks{display:flex;gap:5px;flex:1;overflow:hidden}
+.taskbtn{display:flex;align-items:center;gap:8px;height:34px;padding:0 13px;background:transparent;border:1px solid transparent;color:var(--ink-dim);font-family:var(--pixel);font-size:12px;cursor:pointer;border-radius:6px;transition:.15s;white-space:nowrap}
+.taskbtn img{width:15px;image-rendering:pixelated}
+.taskbtn:hover{background:var(--p2)}
+.taskbtn.active{background:var(--p2);border-color:var(--line-soft);color:var(--ink);box-shadow:inset 0 2px 0 var(--gold)}
+.taskbtn.min{opacity:.5}
+#tray{display:flex;align-items:center;gap:10px}
+#themeBtn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--line-soft);border-radius:6px;cursor:pointer;transition:.15s;padding:0}
+#themeBtn:hover{background:var(--p2)}
+#themeBtn img{width:16px;image-rendering:pixelated}
+#duckTray{display:flex;align-items:center;gap:7px;padding:5px 10px;border:1px solid var(--line-soft);border-radius:6px;cursor:pointer;transition:.15s}
+#duckTray:hover{background:var(--p2)}
+#duckTray img{width:18px;image-rendering:pixelated}
+#duckTray span{font-family:var(--mono);font-size:12px;color:var(--ink-dim)}
+#clock{text-align:right;line-height:1.25;cursor:pointer;padding:4px 8px;border-radius:6px;border:1px solid transparent;transition:.15s}
+#clock:hover{background:var(--p2);border-color:var(--line-soft)}
+#clockTime{font-family:var(--mono);font-size:13px;color:var(--ink)}
+#clockDate{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint)}
+
+/* calendar popup */
+#calPop{position:absolute;right:10px;bottom:52px;width:272px;background:var(--solid);border:1px solid var(--line);border-radius:10px;z-index:56;box-shadow:0 22px 55px rgba(0,0,0,.4);overflow:hidden;animation:winIn .18s ease-out}
+.cal-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line-soft)}
+.cal-head b{font-family:var(--pixel);font-weight:500;font-size:14px}
+.cal-nav{width:24px;height:24px;background:var(--p2);border:1px solid var(--line-soft);border-radius:5px;color:var(--ink-dim);cursor:pointer;font-size:14px;line-height:1;transition:.12s}
+.cal-nav:hover{background:var(--p2h);color:var(--ink)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:10px 12px 6px}
+.cal-dow{font-family:var(--mono);font-size:9px;color:var(--ink-faint);text-align:center;padding-bottom:3px;letter-spacing:1px}
+.cal-cell{position:relative;height:28px;border-radius:5px;background:var(--p2);border:1px solid var(--line-soft);font-family:var(--mono);font-size:9px;color:var(--ink-dim);transition:transform .1s}
+.cal-cell i{position:absolute;top:2px;left:4px;font-style:normal;opacity:.85}
+.cal-cell:hover{transform:scale(1.12)}
+.cal-cell.l1{background:var(--c1)}.cal-cell.l2{background:var(--c2)}
+.cal-cell.l3{background:var(--c3)}.cal-cell.l4{background:var(--c4)}
+.cal-cell.l3 i,.cal-cell.l4 i{color:#241c08}
+.cal-cell.l1,.cal-cell.l2,.cal-cell.l3,.cal-cell.l4{border-color:transparent}
+.cal-cell.fut{opacity:.28}
+.cal-cell.today{box-shadow:0 0 0 2px var(--gold)}
+.cal-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px 11px;border-top:1px solid var(--line-soft)}
+#calTotal{font-family:var(--mono);font-size:11px;color:var(--gold)}
+#calSrc{font-family:var(--mono);font-size:8.5px;color:var(--ink-faint);text-align:right;line-height:1.4}
+
+/* start menu */
+#startMenu{position:absolute;left:10px;bottom:52px;width:314px;background:var(--solid);border:1px solid var(--line);border-radius:10px;z-index:55;box-shadow:0 22px 55px rgba(0,0,0,.4);overflow:hidden;animation:winIn .18s ease-out}
+.sm-head{padding:13px 16px;border-bottom:1px solid var(--line-soft);display:flex;gap:12px;align-items:center}
+.sm-head img{width:40px;image-rendering:pixelated;border-radius:8px;border:2px solid rgba(255,255,255,.85)}
+.sm-head b{font-family:var(--pixel);font-weight:500;font-size:14px;display:block}
+.sm-head small{color:var(--ink-faint);font-size:11px}
+.sm-list{max-height:322px;overflow:auto;padding:6px}
+.sm-item{display:flex;gap:11px;align-items:center;padding:8px 10px;border-radius:6px;cursor:pointer;transition:background .12s}
+.sm-item:hover{background:var(--p2)}
+.sm-item img{width:26px;image-rendering:pixelated}
+.sm-item b{font-family:var(--pixel);font-weight:500;font-size:12.5px;display:block;color:var(--ink)}
+.sm-item small{color:var(--ink-faint);font-size:11px}
+.sm-foot{border-top:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center;padding:10px 14px}
+.sm-foot .restart{display:flex;align-items:center;gap:8px;background:none;border:1px solid var(--line-soft);border-radius:6px;color:var(--ink-dim);font-family:var(--pixel);font-size:12px;padding:6px 12px;cursor:pointer;transition:.15s}
+.sm-foot .restart:hover{background:var(--p2);color:var(--ink)}
+.sm-foot .restart img{width:14px;image-rendering:pixelated}
+
+/* ducks */
+#ducklayer{position:absolute;inset:0;z-index:3;pointer-events:none}
+.duckw{position:absolute;pointer-events:auto;cursor:pointer;image-rendering:pixelated;will-change:transform}
+.duckw img{width:100%;image-rendering:pixelated;display:block}
+.quack{position:absolute;font-family:var(--pixel);font-size:11px;color:var(--ink);background:var(--solid);border:1px solid var(--line);padding:2px 7px;border-radius:5px;animation:qUp .9s ease forwards;pointer-events:none;white-space:nowrap;z-index:5}
+@keyframes qUp{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-22px)}}
+.flyduck{position:fixed;z-index:5000;cursor:pointer;image-rendering:pixelated;will-change:transform}
+.flyduck img{width:100%;image-rendering:pixelated;display:block}
+.flyduck .wing{position:absolute;image-rendering:pixelated}
+.feather{position:fixed;width:7px;height:7px;z-index:5001;pointer-events:none;transition:transform .8s ease-out,opacity .8s}
+
+/* virus */
+.virus-body{display:flex;gap:14px;align-items:flex-start}
+.virus-body img{width:44px;image-rendering:pixelated;flex:0 0 auto}
+.virus-body h3{font-family:var(--pixel);font-size:15px;margin-bottom:6px}
+.virus-body p{color:var(--ink-dim);line-height:1.55;font-size:13.5px}
+.virus-btns{display:flex;gap:10px;margin-top:18px}
+
+/* toasts */
+#toasts{position:fixed;right:16px;bottom:58px;z-index:7000;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.toast{background:var(--p2);border:1px solid var(--gold);color:var(--ink);font-family:var(--pixel);font-size:12px;padding:10px 15px;box-shadow:3px 3px 0 rgba(0,0,0,.3);animation:winIn .22s ease-out;max-width:340px}
+.toast.out{transition:opacity .4s,transform .4s;opacity:0;transform:translateY(8px)}
+
+/* skills */
+.sk-group{margin-bottom:18px}
+.sk-row{display:grid;grid-template-columns:170px 1fr 44px;align-items:center;gap:12px;padding:5px 0}
+.sk-row .nm{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.segbar{display:flex;gap:3px}
+.seg{width:11px;height:13px;background:var(--p2);border:1px solid var(--line-soft);transition:background .3s,border-color .3s}
+.seg.on-gold{background:var(--gold);border-color:var(--gold)}
+.seg.on-blue{background:var(--blue);border-color:var(--blue)}
+.seg.on-sage{background:var(--sage);border-color:var(--sage)}
+.sk-row .lv{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-align:right}
+.certline{font-family:var(--mono);font-size:11.5px;color:var(--gold);line-height:1.7}
+
+/* projects */
+.pj{display:grid;grid-template-columns:200px 1fr;gap:16px;height:100%}
+.pj-list{border-right:1px solid var(--line-soft);padding-right:12px;overflow:auto}
+.pj-item{padding:10px 11px;border-radius:7px;cursor:pointer;border:1px solid transparent;transition:.13s;margin-bottom:5px}
+.pj-item:hover{background:var(--p2)}
+.pj-item.on{background:var(--p2);border-color:var(--line)}
+.pj-item b{font-family:var(--mono);font-size:12.5px;display:block;color:var(--ink)}
+.pj-item small{color:var(--ink-faint);font-size:10.5px;font-family:var(--mono)}
+.pj-detail{overflow:auto;padding-right:4px}
+.pj-detail h4{font-family:var(--mono);font-size:16px;margin-bottom:3px}
+.pj-detail .yr{font-family:var(--mono);font-size:11px;color:var(--gold);margin-bottom:12px}
+.pj-detail p{color:var(--ink-dim);line-height:1.65;font-size:13.5px;margin-bottom:14px}
+@media(max-width:620px){.pj{grid-template-columns:1fr}.pj-list{border:none;display:flex;overflow-x:auto;padding:0 0 8px}.pj-item{min-width:160px}}
+
+/* timeline */
+.tl{border-left:2px solid var(--line-soft);padding-left:20px;margin-left:6px}
+.tl-item{position:relative;padding-bottom:20px}
+.tl-item::before{content:'';position:absolute;left:-26px;top:4px;width:9px;height:9px;background:var(--gold);box-shadow:0 0 0 3px rgba(240,199,106,.18)}
+.tl-item .t{font-family:var(--mono);font-size:11px;color:var(--blue)}
+.tl-item h4{font-family:var(--pixel);font-weight:500;font-size:14.5px;margin:3px 0 2px}
+.tl-item .s{font-size:12.5px;color:var(--ink-dim)}
+.tl-item p{font-size:12.5px;color:var(--ink-faint);margin-top:5px;line-height:1.6}
+
+/* about */
+.ab-head{display:flex;gap:16px;align-items:center;margin-bottom:16px}
+.ab-head img{width:80px;image-rendering:pixelated;border-radius:10px;border:3px solid rgba(255,255,255,.85)}
+.ab-head b{font-family:var(--pixel);font-weight:600;font-size:20px;display:block}
+.ab-head span{font-family:var(--mono);font-size:12px;color:var(--gold)}
+.about p{line-height:1.7;color:var(--ink-dim);font-size:13.5px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;margin-top:16px}
+.facts div{border:1px solid var(--line-soft);border-radius:6px;padding:9px 12px;background:var(--p2)}
+.facts small{font-family:var(--mono);font-size:10px;color:var(--ink-faint);letter-spacing:1px;display:block;margin-bottom:3px}
+.facts b{font-family:var(--mono);font-weight:400;font-size:12.5px;color:var(--ink)}
+
+/* resume */
+.rs-bar{display:flex;align-items:center;gap:10px;padding-bottom:13px;margin-bottom:15px;border-bottom:1px solid var(--line-soft);flex-wrap:wrap}
+.rs-tip{font-family:var(--mono);font-size:10px;color:var(--ink-faint);line-height:1.5;flex:1;min-width:180px}
+.rs-doc h1{font-family:var(--pixel);font-weight:600;font-size:24px;letter-spacing:1px}
+.rs-doc .rs-sub{font-family:var(--mono);font-size:11px;color:var(--ink-dim);margin-top:4px}
+.rs-doc .rs-role{font-family:var(--mono);font-size:11px;color:var(--gold);margin:3px 0 6px}
+.rs-doc h2{font-family:var(--pixel);font-size:13px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--line-soft);padding-bottom:4px;margin:16px 0 8px}
+.rs-doc h3{font-family:var(--mono);font-size:13px;color:var(--ink);margin:10px 0 1px}
+.rs-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.rs-doc .rs-meta{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);white-space:nowrap}
+.rs-doc .rs-it{font-family:var(--mono);font-size:10.5px;color:var(--blue);font-style:italic;margin-bottom:4px}
+.rs-doc p{font-size:13px;color:var(--ink-dim);line-height:1.65}
+.rs-doc ul{margin:4px 0 10px 16px}
+.rs-doc li{font-size:12.5px;color:var(--ink-dim);line-height:1.6;margin-bottom:3px}
+.rs-doc b{color:var(--ink);font-weight:600}
+.rs-doc p+p{margin-top:6px}
+
+#printRoot{display:none}
+@media print{
+  body.printing{background:#fff}
+  body.printing > :not(#printRoot){display:none!important}
+  body.printing #printRoot{display:block!important;color:#1c1c24;font-family:Georgia,'Times New Roman',serif}
+  #printRoot h1{font-size:24px;margin:0 0 2px;letter-spacing:.5px}
+  #printRoot .rs-sub{font-size:10.5px;color:#444}
+  #printRoot .rs-role{font-size:10.5px;color:#444;font-style:italic;margin-bottom:4px}
+  #printRoot h2{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;border-bottom:1px solid #999;padding-bottom:2px;margin:13px 0 6px}
+  #printRoot h3{font-size:12px;margin:8px 0 1px}
+  #printRoot .rs-it{font-size:10.5px;color:#555;font-style:italic;margin-bottom:3px}
+  #printRoot .rs-meta{font-size:10px;color:#555}
+  #printRoot p,#printRoot li{font-size:10.8px;line-height:1.5;color:#222}
+  #printRoot ul{margin:2px 0 7px 16px}
+}
+
+/* editor */
+.ed{height:100%;display:flex;flex-direction:column;font-family:var(--mono);font-size:13px}
+.ed-tabs{display:flex;gap:5px;padding:8px 10px 0;background:var(--p5);border-bottom:1px solid var(--line-soft);align-items:center}
+.ed-tab{font-family:var(--mono);font-size:12px;color:var(--ink-faint);background:var(--p2);border:1px solid var(--line-soft);border-bottom:none;padding:6px 13px;cursor:pointer;border-radius:6px 6px 0 0;transition:.12s}
+.ed-tab:hover{color:var(--ink)}
+.ed-tab.on{color:var(--ink);background:var(--p5);border-color:var(--line)}
+.ed-hint{margin-left:auto;color:var(--ink-faint);font-size:10.5px;padding-right:6px}
+.ed-main{flex:1;display:flex;min-height:0;background:var(--p5)}
+.gutter{padding:10px 9px 10px 6px;text-align:right;color:var(--ink-faint);user-select:none;font-size:12px;line-height:1.6;background:var(--p5);border-right:1px solid var(--line-2);overflow:hidden;min-width:34px}
+.ed-code{position:relative;flex:1;overflow:hidden}
+.ed-code pre,.ed-code textarea{position:absolute;inset:0;margin:0;padding:10px 14px;font:inherit;line-height:1.6;white-space:pre;overflow:auto;tab-size:2}
+.ed-code pre{pointer-events:none;color:var(--ink-dim);overflow:hidden}
+.ed-code textarea{background:transparent;color:transparent;caret-color:var(--gold);resize:none;border:none;outline:none}
+.tk-c{color:var(--ink-faint);font-style:italic}.tk-s{color:var(--sage)}.tk-k{color:var(--gold)}.tk-n{color:var(--rose)}
+.ed-out{height:138px;border-top:1px solid var(--line-soft);background:var(--p4);display:flex;flex-direction:column;flex:0 0 auto}
+.ed-out-head{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid var(--line-2);font-family:var(--pixel);font-size:12px;color:var(--ink-faint)}
+.ed-out pre{margin:0;padding:9px 13px;overflow:auto;flex:1;color:var(--ink-dim);font-size:12px;line-height:1.55;font-family:var(--mono)}
+.ed-out pre .err{color:var(--red)}
+
+/* game */
+.gm{height:100%;display:flex;flex-direction:column}
+.gm-hud{display:flex;gap:18px;align-items:center;padding:9px 14px;border-bottom:1px solid var(--line-soft);font-family:var(--pixel);font-size:12px;color:var(--ink-dim)}
+.gm-hud b{color:var(--ink);font-weight:600;margin-left:4px}
+.gm-hud .btn{margin-left:auto;padding:4px 11px;font-size:11px}
+.gm-stage{flex:1;position:relative;background:var(--p5);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.gm-stage canvas{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;cursor:none}
+.gm-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;background:var(--ov);backdrop-filter:blur(3px)}
+.gm-ov-t{font-family:var(--pixel);font-size:22px;letter-spacing:1px}
+.gm-ov-s{font-family:var(--mono);font-size:12px;color:var(--ink-dim);margin-bottom:6px}
+.gm-pop{position:absolute;font-family:var(--pixel);font-size:12px;color:var(--gold);pointer-events:none;animation:qUp .7s ease forwards}
+
+/* contact */
+.cnt label{font-family:var(--mono);font-size:11px;color:var(--ink-faint);display:block;margin:12px 0 5px;letter-spacing:.5px}
+.cnt input,.cnt textarea{width:100%;background:var(--p3);border:1px solid var(--line-soft);color:var(--ink);padding:9px 12px;font-family:var(--body);font-size:13.5px;border-radius:6px;outline:none;transition:border-color .15s;resize:vertical}
+.cnt input:focus,.cnt textarea:focus{border-color:var(--gold)}
+.cnt .row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center}
+.cnt .note{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);margin-top:12px;line-height:1.7}
+
+/* readme */
+.rd pre{font-family:var(--mono);font-size:12.5px;line-height:1.85;color:var(--ink-dim);white-space:pre-wrap}
+.rd b{color:var(--gold);font-weight:400}
+</style>
+</head>
+<body>
+
+<!-- ======== BOOT ======== -->
+<div id="boot">
+  <img id="bootDuck" alt="">
+  <div class="boot-title">UDAI OS</div>
+  <pre id="bootLog"></pre>
+  <div class="boot-bar"><i id="bootFill"></i></div>
+  <div class="boot-skip">click anywhere to skip</div>
+</div>
+
+<!-- ======== LOGIN ======== -->
+<div id="login" class="hidden">
+  <svg id="loginWall" viewBox="0 0 960 540" preserveAspectRatio="xMidYMid slice"></svg>
+  <div class="login-time"><b id="lt">--:--</b><span id="ld"></span></div>
+  <div class="login-center">
+    <button id="avatarBtn" aria-label="select user"><img id="avatarImg" alt="avatar"></button>
+    <div class="login-name" id="loginName"></div>
+    <button id="signinBtn" class="hidden">Sign in</button>
+    <div id="welcome" class="hidden"><div class="spinner"><i></i><i></i><i></i></div><div>Welcome</div></div>
+  </div>
+  <div class="login-hint">click your avatar to begin</div>
+  <button id="loginPower" aria-label="power"><img id="powerImg" alt=""></button>
+</div>
+
+<!-- ======== DESKTOP ======== -->
+<div id="desktop" class="hidden">
+  <svg id="wall" viewBox="0 0 960 540" preserveAspectRatio="xMidYMid slice"></svg>
+  <div id="petals"></div>
+  <div id="icons"></div>
+  <div id="winlayer"></div>
+  <div id="ducklayer"></div>
+  <div id="taskbar">
+    <button id="startBtn" aria-label="start"><span class="logo4"><i></i><i></i><i></i><i></i></span></button>
+    <div id="tasks"></div>
+    <div id="tray">
+      <button id="themeBtn" title="switch theme"></button>
+      <div id="duckTray" title="ducks spotted"><img id="trayDuck" alt=""><span id="duckCount">0</span></div>
+      <div id="clock" title="commit calendar"><div id="clockTime">--:--</div><div id="clockDate"></div></div>
+    </div>
+  </div>
+  <div id="calPop" class="hidden">
+    <div class="cal-head"><button class="cal-nav" id="calPrev">&#8249;</button><b id="calTitle"></b><button class="cal-nav" id="calNext">&#8250;</button></div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-foot"><span id="calTotal"></span><span id="calSrc"></span></div>
+  </div>
+  <div id="startMenu" class="hidden"></div>
+</div>
+
+<div id="toasts"></div>
+<div id="printRoot"></div>
+
+<!-- ======== sandbox files ======== -->
+<script type="text/plain" id="file-portfolio">
+// portfolio.js — udai's brain, indexed
+const engineer = {
+  name: "Udai Batta",
+  role: "Backend · Full-Stack · Applied AI/RAG",
+  school: "Thapar Institute, Patiala",
+  building: ["ArchiAI (RAG + Django)", "Lender Lens", "this desktop"],
+  learning: ["agentic AI", "system design"],
+};
+
+function introduce(e) {
+  return e.name + " — " + e.role;
+}
+
+console.log(introduce(engineer));
+console.log("currently building: " + engineer.building[0]);
+console.log("tip: switch to duck.js and press run.");
+</script>
+<script type="text/plain" id="file-duck">
+// duck.js — run at your own risk
+// this sandbox is connected to the desktop.
+
+console.log("opening the duck gate...");
+
+spawnDuck();
+spawnDuck();
+
+console.log("two ducks released. sorry.");
+</script>
+
+<script>
+/* ================================================================
+   CONFIG
+================================================================ */
+const CONFIG = {
+  name: "Udai Batta",
+  handle: "UdaiBatta",
+  role: "Software Engineer — Backend · Full-Stack · Applied AI/RAG",
+  tagline: "B.E. CSE · Thapar Institute · '27",
+  email: "udbatta@gmail.com",
+  phone: "+91 7888752150",
+  github: "https://github.com/UdaiBatta",
+  linkedin: "https://linkedin.com/in/udai-batta",
+  resumeURL: "resume.pdf",
+};
+
+/* ================= utils ================= */
+const $ = s => document.querySelector(s);
+const NS = "http://www.w3.org/2000/svg";
+const store = {
+  get(k){ try{return localStorage.getItem(k);}catch(e){return null;} },
+  set(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
+};
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function toast(msg){
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  $('#toasts').appendChild(t);
+  setTimeout(()=>t.classList.add('out'),2600);setTimeout(()=>t.remove(),3100);
+}
+
+/* ================= pixel sprite factory ================= */
+function makeSprite(map,pal,scale){
+  scale=scale||4;
+  const h=map.length,w=map[0].length;
+  const c=document.createElement('canvas');c.width=w*scale;c.height=h*scale;
+  const x=c.getContext('2d');
+  map.forEach((row,j)=>{for(let i=0;i<row.length;i++){const ch=pal[row[i]];if(ch){x.fillStyle=ch;x.fillRect(i*scale,j*scale,scale,scale);}}});
+  return c;
+}
+const P_DUCK={y:'#f2cf5e',o:'#e0a44c',k:'#2a2431',w:'#fdf3d0'};
+const DUCK_A=[
+"..........yyy...",".........yyyyy..",".........yykyy..",".........yyyyy..",
+".........yyyooo.","..........yyyy..",".yy.......yyy...",".yyy...yyyyyy...",
+"..yyyyyyyyyyyy..","..yyyyyywwyyyy..","...yyyyyyyyyy...","....oo....oo...."];
+const DUCK_B=[
+"..........yyy...",".........yyyyy..",".........yykyy..",".........yyyyy..",
+".........yyyooo.",".y........yyyy..",".yy.......yyy...",".yy....yyyyyy...",
+"..yyyyyyyyyyyy..","...yyyywwyyyy...","...yyyyywwyyy...","....oo....oo...."];
+const DUCK_FLY=DUCK_A.slice(0,11);
+const WING_UP=["..yyy...",".yyyyy..","..yyy..."];
+const WING_DN=["........","..yyy...",".yyyyy..","..yyy..."];
+
+const P_USER={h:'#241f2b',f:'#c68e64',F:'#a8714a',g:'#eceaf2',e:'#241f2b',s:'#8a5a3e',y:'#f2c94c',o:'#e0a63e',w:'#f5f3ee'};
+const USER=[
+"......hhhhhhhh......",
+"....hhhhhhhhhhhh....",
+"...hhhhhhhhhhhhhh...",
+"..hhhhhhhhhhhhhhhh..",
+"..hhffffffffffffhh..",
+"..hhgggggffggggghh..",
+"..hhggeegffggeeghh..",
+"..hhgggggffggggghh..",
+"..hhhffffFFffffhhh..",
+"..hhfffffssfffffhh..",
+"..hhhffffffffffhhh..",
+"....hhffffffffhh....",
+"......ffffffff......",
+"....yyyywwwwyyyy....",
+"...yoyyywwwwyyyoy...",
+"..yyoyyywwwwyyoyyy..",
+"..yyyyyywwwwyyyyyy..",
+".yyyyyyywwwwyyyyyyy.",
+".yyyyyyywwwwyyyyyyy."];
+
+const P_FOLDER={d:'#6d78a8',L:'#8b96c4',V:'#c3cbe8'};
+const FOLDER=[
+"..dddddddd......","..dLLLLLLd......",".dddddddddddddd.",".dLLVVLLLLLLLLd.",
+".dLLLLLLLLLLLLd.",".dLLLLLLLLLLLLd.",".dLLLLLLLLLLLLd.",".dLLLLLLLLLLLLd.",
+".dLLLLLLLLLLLLd.",".dddddddddddddd."];
+const P_MON={k:'#10142a',a:'#2a3150',b:'#f0c76a',c:'#8fb8e6',y:'#a9c9b4'};
+const MONITOR=[
+"..kkkkkkkkkkkk..",".kaaaaaaaaaaaak.",".kabbbbbaaaaaak.",".kaaaaccccccaak.",
+".kabbbyaaaaaaak.",".kaaayyccaaaaak.",".kaaaaccaaabbak.","..kkkkkkkkkkkk..",
+".....kkkkkk.....","....kkkkkkkk...."];
+const P_PAD={k:'#10142a',p:'#7d88b0',y:'#f0c76a'};
+const PAD=[
+"...kkkkkkkkkk...","..kppppppppppk..",".kpkkkpppppypk..",".kpppkpppppppk..",
+".kpkkkppppyypk..","..kppppppppppk..","...kkkkkkkkkk..."];
+const P_CAP={k:'#454f74',c:'#5d678c',y:'#f0c76a'};
+const CAP=[
+"......y.........","......yy........","....kkkkkkk.yy..","..kkkkkkkkkky...",
+"..kkkkkkkkkk....","....cccccc......","....cccccc......"];
+const P_CHART={p:'#8fb8e6',c:'#f0c76a',y:'#a9c9b4',k:'#5d678c'};
+const CHART=[
+"................","............yy..","............yy..","........cc..yy..",
+"........cc..yy..","....pp..cc..yy..","....pp..cc..yy..","....pp..cc..yy..",
+"kkkkkkkkkkkkkkkk"];
+const P_MAIL={K:'#454f74',M:'#f3f1ea'};
+const MAIL=[
+"..............",".KKKKKKKKKKKK.",".KMMMMMMMMMMK.",".KKMMMMMMMMKK.",".KMKKMMMMKKMK.",
+".KMMKKMMKKMMK.",".KMMMMKKMMMMK.",".KMMMMMMMMMMK.",".KKKKKKKKKKKK."];
+const P_NOTE={k:'#454f74',n:'#f3f1ea',m:'#f0c76a'};
+const NOTE=[
+"....kkkkkkkk....","....knnnnnnk....","....knmmmnnk....","....knnnnnnk....",
+"....knmmmmnk....","....knnnnnnk....","....knmmmnnk....","....knnnnnnk....",
+"....kkkkkkkk...."];
+const P_DOC={k:'#39415f',w:'#f3f1ea',m:'#9aa3c4',g:'#f0c76a'};
+const DOC=[
+"...kkkkkkkkk..","...kwwwwwwwkk.","...kwwwwwwkwk.","...kwwwwwkwwk.",
+"...kwmmmmmwwk.","...kwwwwwwwwk.","...kwmmmmwwwk.","...kwwwwwwwwk.",
+"...kwmmmmmwwk.","...kwwwwwwwwk.","...kwwggggwwk.","...kwwwwwwwwk.",
+"...kwmmmmwwwk.","...kkkkkkkkkk."];
+const P_WARN={k:'#2a2431',y:'#eec06a'};
+const WARN=[
+"......kk......",".....kyyk.....","....kyyyyk....","...kyykkyyk...","...kyykkyyk...",
+"..kyyykkyyyk..","..kyyyyyyyyk..","..kyyykkyyyk..",".kyyyyyyyyyyk.",".kkkkkkkkkkkk."];
+const P_BRIEF={k:'#39415f',b:'#8b96c4',y:'#f0c76a'};
+const BRIEF=[
+"..............","....kkkkkk....","....k....k....",".kkkkkkkkkkkk.",
+".kbbbbybbbbbk.",".kbbbbbbbbbbk.",".kbbbyybbbbbk.",".kbbbbbbbbbbk.",
+".kkkkkkkkkkkk."];
+const P_POW={k:'#edf0fa'};
+const POWER=[
+"....kk....",".kk.kk.kk.",".k..kk..k.",".k..kk..k.",".k......k.",".kk....kk.","..kkkkkk.."];
+const P_SUN={y:'#f2c94c',w:'#fff3d0'};
+const SUN=[
+"....yy....",".y..yy..y.","..yyyyyy..",".yywyywyy.","yyywwwwyyy",
+".yywyywyy.","..yyyyyy..",".y..yy..y.","....yy...."];
+const P_MOON={c:'#e8e4d4'};
+const MOON=[
+"...cccc...","..cccccc..",".cccc.....",".ccc......","ccc.......",
+"ccc.......",".ccc......",".cccc.....","..cccccc..","...cccc..."];
+
+const SPR={};
+function buildSprites(){
+  SPR.duckA=makeSprite(DUCK_A,P_DUCK);SPR.duckB=makeSprite(DUCK_B,P_DUCK);
+  SPR.fly=makeSprite(DUCK_FLY,P_DUCK);
+  SPR.wingUp=makeSprite(WING_UP,P_DUCK,3);SPR.wingDn=makeSprite(WING_DN,P_DUCK,3);
+  SPR.user=makeSprite(USER,P_USER);SPR.folder=makeSprite(FOLDER,P_FOLDER);
+  SPR.mon=makeSprite(MONITOR,P_MON);SPR.pad=makeSprite(PAD,P_PAD);
+  SPR.cap=makeSprite(CAP,P_CAP);SPR.chart=makeSprite(CHART,P_CHART);
+  SPR.mail=makeSprite(MAIL,P_MAIL);SPR.note=makeSprite(NOTE,P_NOTE);
+  SPR.doc=makeSprite(DOC,P_DOC);SPR.warn=makeSprite(WARN,P_WARN,4);
+  SPR.brief=makeSprite(BRIEF,P_BRIEF);SPR.power=makeSprite(POWER,P_POW,3);
+  SPR.sun=makeSprite(SUN,P_SUN);SPR.moon=makeSprite(MOON,P_MOON);
+  const l=document.createElement('link');l.rel='icon';l.href=SPR.duckA.toDataURL();document.head.appendChild(l);
+}
+const iconURL=k=>SPR[k].toDataURL();
+
+/* ================= wallpaper — layered pixel city, night & day ================= */
+let wallSeed=7;
+/* EXT = bleed margin: every layer is painted this far beyond the viewBox on
+   both sides, so the parallax shift (max 20px) can never reveal empty space */
+const EXT=90;
+function lerpC(a,b,t){
+  const pa=parseInt(a.slice(1),16),pb=parseInt(b.slice(1),16);
+  const r=Math.round(((pa>>16)&255)+(((pb>>16)&255)-((pa>>16)&255))*t);
+  const g=Math.round(((pa>>8)&255)+(((pb>>8)&255)-((pa>>8)&255))*t);
+  const bl=Math.round((pa&255)+((pb&255)-(pa&255))*t);
+  return '#'+((1<<24)+(r<<16)+(g<<8)+bl).toString(16).slice(1);
+}
+function mixC(c,t){ return lerpC(c,'#141826',t); }
+function gradAt(stops,t){
+  for(let i=1;i<stops.length;i++){
+    if(t<=stops[i][0]/100){
+      const a=stops[i-1],b=stops[i];
+      const tt=(t-a[0]/100)/(((b[0]-a[0])/100)||1);
+      return lerpC(a[1],b[1],Math.min(1,Math.max(0,tt)));
+    }
+  }
+  return stops[stops.length-1][1];
+}
+
+const WALL={
+ night:{
+  sky:[[0,'#39466f'],[30,'#5d6a94'],[52,'#8f88b2'],[68,'#c9a3b4'],[82,'#e9c8c0'],[100,'#f2ddca']],
+  stars:30, moon:true, sun:false,
+  cloudBack:'#c9c3da', cloudFront:'#e9e4ee', cloudShade:'#a89fc4',
+  far:'#7c86ae', farOp:.6, nearC:['#3c466a','#374064','#414b70'], roofL:'#4c5678',
+  winDark:'#282f4e', lit:['#f2d9a4','#f2d9a4','#aac4e2'], litChance:.17, twChance:.14,
+  walk:'#262d4a', walkHi:'#333c60', walkSeam:'#1e2440', road:'#141a30', roadEdge:'#0d1224', lane:'#3f4870',
+  rail:'#10162a', lampGlow:true, vendBody:'#1a2138', vendWin:'#232c4a',
+  trunk:'#3a344c', blossom:['#b48cae','#c9a3b8','#dcc0cf','#ecd8e0'], blossomHi:'#f6e9ee',
+  birdC:'#2e3550', birds:3, shoot:true, beacon:'#ff9e9e', catC:'#16141f',
+  towerC:'#333d64', towerX:'#4c5678', horizon:'#f2d9a4', horizonOp:.09
+ },
+ day:{
+  sky:[[0,'#5f9bd4'],[35,'#8fc0e4'],[62,'#bcdcef'],[80,'#e4e9d4'],[100,'#f6ead0']],
+  stars:0, moon:false, sun:true,
+  cloudBack:'#ffffff', cloudFront:'#f6f9fc', cloudShade:'#d7e2ec',
+  far:'#a8b8d4', farOp:.75, nearC:['#5d6b8e','#556284','#66749a'], roofL:'#7c89ab',
+  winDark:'rgba(35,45,75,.3)', lit:['rgba(255,244,200,.9)'], litChance:.05, twChance:0,
+  walk:'#c9c0b0', walkHi:'#ded6c4', walkSeam:'#b3a996', road:'#4a5268', roadEdge:'#3c445a', lane:'#d8d4c8',
+  rail:'#2e3a56', lampGlow:false, vendBody:'#39415f', vendWin:'#4c5678',
+  trunk:'#7a6258', blossom:['#e8a8c0','#f2c3d2','#f9dde6','#d993b0'], blossomHi:'#fdeef3',
+  birdC:'#3c466a', birds:5, shoot:false, beacon:'#e8e4d4', catC:'#3a3644',
+  towerC:'#4c5a80', towerX:'#7c89ab', horizon:'#ffffff', horizonOp:.3
+ }
+};
+
+function buildWallpaper(svg,mode,seed){
+  const P=WALL[mode]||WALL.night;
+  const R=mulberry32((seed==null?wallSeed:seed));
+  const fx=v=>Math.round(v*10)/10;
+  const A=(t,at,parent)=>{const e=document.createElementNS(NS,t);for(const k in at)e.setAttribute(k,at[k]);parent.appendChild(e);return e;};
+  const px=(x,y,w,h,c,parent,op)=>{const e=A('rect',{x:fx(x),y:fx(y),width:fx(w),height:fx(h),fill:c},parent);if(op!=null)e.setAttribute('opacity',op);return e;};
+  const W2=960+EXT*2;   // full painted width, from -EXT to 960+EXT
+
+  svg.innerHTML='';
+  const defs=A('defs',{},svg);
+  const lampG=A('radialGradient',{id:'lampG'+mode},defs);
+  A('stop',{offset:'0%','stop-color':'#ffe3ae','stop-opacity':P.lampGlow?0.4:0},lampG);
+  A('stop',{offset:'100%','stop-color':'#ffe3ae','stop-opacity':0},lampG);
+  const vendG=A('radialGradient',{id:'vendG'+mode},defs);
+  A('stop',{offset:'0%','stop-color':'#8fb8e6','stop-opacity':mode==='day'?0.22:0.4},vendG);
+  A('stop',{offset:'100%','stop-color':'#8fb8e6','stop-opacity':0},vendG);
+  const vig=A('radialGradient',{id:'vig'+mode,cx:0.5,cy:0.45,r:0.78},defs);
+  A('stop',{offset:'60%','stop-color':'#141826','stop-opacity':0},vig);
+  A('stop',{offset:'100%','stop-color':'#141826','stop-opacity':mode==='day'?0.06:0.28},vig);
+
+  /* ---- sky: crisp pixel bands, painted past both edges ---- */
+  const gSky=A('g',{},svg);
+  const bands=14,bh=540/bands;
+  for(let i=0;i<bands;i++)px(-EXT,i*bh,W2,bh+1,gradAt(P.sky,i/(bands-1)),gSky);
+
+  /* ---- sun / moon ---- */
+  if(P.sun){
+    const sg=A('radialGradient',{id:'sunG'},defs);
+    A('stop',{offset:'0%','stop-color':'#fff6d8','stop-opacity':0.9},sg);
+    A('stop',{offset:'40%','stop-color':'#ffe9b0','stop-opacity':0.3},sg);
+    A('stop',{offset:'100%','stop-color':'#ffe9b0','stop-opacity':0},sg);
+    A('circle',{cx:760,cy:96,r:105,fill:'url(#sunG)'},gSky);
+    A('circle',{cx:760,cy:96,r:24,fill:'#ffe9b0'},gSky);
+    A('circle',{cx:760,cy:96,r:18,fill:'#fff6d8'},gSky);
+    for(let k=0;k<8;k++){const a=k*Math.PI/4;
+      px(760+Math.cos(a)*28-2.5,96+Math.sin(a)*28-2.5,5,5,'#ffe9b0',gSky);}
+  }
+  if(P.moon){
+    const topC=gradAt(P.sky,0.02);
+    const mg=A('radialGradient',{id:'moonG'},defs);
+    A('stop',{offset:'0%','stop-color':'#fdf6dc','stop-opacity':0.5},mg);
+    A('stop',{offset:'100%','stop-color':'#fdf6dc','stop-opacity':0},mg);
+    A('circle',{cx:800,cy:84,r:48,fill:'url(#moonG)'},gSky);
+    A('circle',{cx:800,cy:84,r:15,fill:'#f4eed8'},gSky);
+    A('circle',{cx:806,cy:78,r:13,fill:topC},gSky);
+    A('circle',{cx:795,cy:90,r:1.6,fill:'#d8d2ba'},gSky);
+    A('circle',{cx:799,cy:95,r:1.1,fill:'#d8d2ba'},gSky);
+  }
+
+  /* ---- stars (night) ---- */
+  const drift=A('g',{class:'drift'},gSky);
+  for(let i=0;i<P.stars;i++){
+    const st=A('rect',{x:(R()*W2-EXT).toFixed(0),y:(R()*130).toFixed(0),width:2,height:2,
+      fill:R()<0.3?'#f4e2d2':'#ffffff',opacity:(0.15+R()*0.3).toFixed(2)},drift);
+    if(R()<0.25){st.classList.add('tw');st.style.animationDuration=(6+R()*6).toFixed(1)+'s';st.style.animationDelay=(R()*6).toFixed(1)+'s';}
+  }
+
+  /* ---- shooting star (night) ---- */
+  if(P.shoot){
+    const sh=A('g',{class:'shoot'},gSky);
+    A('rect',{x:880,y:36,width:4,height:4,fill:'#ffffff'},sh);
+    A('rect',{x:884,y:37,width:34,height:2,fill:'#ffffff',opacity:0.45},sh);
+  }
+
+  /* ---- clouds (shadow copy underneath = pixel outline) ---- */
+  function cloud(cx,cy,s,col){
+    const rows=[0.42,0.72,0.92,1,0.9,0.62];
+    rows.forEach((f,j)=>px(cx-s*1.1*f,cy+3-s*0.45+j*s*0.24,s*2.2*f,s*0.27,P.cloudShade,drift));
+    rows.forEach((f,j)=>px(cx-s*1.1*f,cy-s*0.45+j*s*0.24,s*2.2*f,s*0.27,col,drift));
+  }
+  cloud(150,120,34,P.cloudBack);cloud(640,60,24,P.cloudBack);
+  cloud(-40,140,30,P.cloudBack);cloud(1000,70,26,P.cloudBack);
+  [[170,46,26],[540,32,20],[860,84,22],[430,84,28],[700,158,40],[268,206,20],[566,194,30],[790,262,18],[62,252,22]]
+    .forEach(c=>cloud(c[0],c[1],c[2],P.cloudFront));
+  px(-EXT,150,1000,3,'#ffffff',drift,mode==='day'?0.5:0.3).setAttribute('transform','rotate(-12 300 150)');
+
+  /* ---- birds ---- */
+  for(let i=0;i<P.birds;i++){
+    const outer=A('g',{},gSky);
+    outer.setAttribute('transform','translate(0,'+(40+R()*170).toFixed(0)+')');
+    const b=A('g',{class:'bird'},outer);
+    b.style.setProperty('--t',(38+R()*34).toFixed(0)+'s');
+    b.style.animationDelay=(-R()*50).toFixed(1)+'s';
+    A('rect',{x:0,y:2,width:5,height:2,fill:P.birdC},b);
+    A('rect',{x:5,y:0,width:5,height:2,fill:P.birdC,'class':'wf'},b);
+    A('rect',{x:4,y:2,width:3,height:2,fill:P.birdC},b);
+  }
+
+  /* ---- far skyline + a distant spire (full bleed) ---- */
+  const gCity=A('g',{},svg);
+  px(-EXT,352,W2,66,P.horizon,gCity,P.horizonOp);
+  let fx2=-EXT;while(fx2<960+EXT){const w=20+R()*26,h=26+R()*72;
+    px(fx2,410-h,w,h+8,P.far,gCity,P.farOp);fx2+=w+R()*10;}
+  const spx=140+R()*640;
+  px(spx,332,4,84,P.far,gCity,P.farOp);px(spx-3,354,10,4,P.far,gCity,P.farOp);
+
+  /* ---- near buildings with rooftops (full bleed) ---- */
+  let x=-EXT;
+  while(x<960+EXT){
+    const bw=34+R()*46,bh2=64+R()*102,top=418-bh2;
+    const base=P.nearC[(R()*P.nearC.length)|0];
+    px(x,top,bw,bh2+12,base,gCity);
+    px(x,top,bw,3,P.roofL,gCity);
+    px(x,top,2.5,bh2+12,mixC(base,0.28),gCity);
+    const rr=R();
+    if(rr<0.32){
+      const ax=x+5+R()*(bw-12);
+      px(ax,top-12,2,12,P.towerX,gCity);
+      const bl=px(ax-1.5,top-15,4,3,P.twChance?P.beacon:P.towerX,gCity);
+      if(P.twChance){bl.classList.add('tw');bl.style.animationDuration='3.8s';bl.style.animationDelay=(R()*3).toFixed(1)+'s';}
+    }else if(rr<0.48){
+      const wx=x+bw*0.55;
+      px(wx,top-4,2,6,P.towerC,gCity);px(wx+9,top-4,2,6,P.towerC,gCity);
+      px(wx-2,top-13,13,9,P.towerC,gCity);px(wx-3,top-16,15,3,P.roofL,gCity);
+    }else if(rr<0.64){
+      px(x+4,top-4,7,4,P.roofL,gCity);px(x+14,top-4,5,4,P.roofL,gCity);
+    }
+    for(let wy=top+8;wy<406;wy+=11)for(let wx2=x+5;wx2<x+bw-6;wx2+=9){
+      if(R()<P.litChance){
+        const t=px(wx2,wy,3.5,4.5,P.lit[(R()*P.lit.length)|0],gCity);
+        if(P.twChance&&R()<0.18){t.classList.add('tw');t.style.animationDuration=(7+R()*6).toFixed(1)+'s';t.style.animationDelay=(R()*6).toFixed(1)+'s';}
+      }else px(wx2,wy,3.5,4.5,P.winDark,gCity);
+    }
+    x+=bw+2+R()*12;
+  }
+
+  /* ---- lattice tower ---- */
+  const tcx=700;
+  [[348,58,30],[296,52,20],[250,46,12],[226,24,6]].forEach(sg2=>{
+    const w=sg2[2],y=sg2[0],hh=sg2[1];
+    px(tcx-w/2,y,3,hh,P.towerC,gCity);
+    px(tcx+w/2-3,y,3,hh,P.towerC,gCity);
+    for(let yy=y+4;yy<y+hh-2;yy+=9)px(tcx-w/2+1,yy,w-2,2,P.towerX,gCity,0.9);
+  });
+  px(tcx-16,342,32,5,P.towerC,gCity);
+  px(tcx-11,292,22,4,P.towerC,gCity);
+  px(tcx-1,224,2,10,P.towerX,gCity);
+  const beaconEl=px(tcx-2.5,218,5,5,P.beacon,gCity);
+  if(P.twChance){beaconEl.classList.add('tw');beaconEl.style.animationDuration='4.5s';}
+
+  /* ---- ground: sidewalk, railing, road (full bleed) ---- */
+  const gFront=A('g',{},svg);
+  px(-EXT,416,W2,54,P.walk,gFront);
+  px(-EXT,416,W2,3,P.walkHi,gFront);
+  for(let sx2=-EXT;sx2<960+EXT;sx2+=56)px(sx2,421,2,44,P.walkSeam,gFront);
+  px(-EXT,466,W2,4,P.walkSeam,gFront);
+  px(-EXT,444,W2,3,P.rail,gFront);px(-EXT,459,W2,3,P.rail,gFront);
+  for(let pxp=-EXT;pxp<960+EXT;pxp+=24)px(pxp,444,3,20,P.rail,gFront);
+  px(-EXT,470,W2,70,P.road,gFront);
+  px(-EXT,470,W2,3,P.roadEdge,gFront);
+  for(let dx2=-EXT;dx2<960+EXT;dx2+=64)px(dx2,503,22,3,P.lane,gFront,0.85);
+
+  /* ---- lamps ---- */
+  [300,620].forEach(L=>{
+    A('circle',{cx:L,cy:334,r:36,fill:'url(#lampG'+mode+')'},gFront);
+    px(L-2,332,4,120,P.rail,gFront);
+    px(L-9,322,18,12,P.towerX,gFront);
+    px(L-6,325,12,6,P.lampGlow?'#f6e7c2':'#cfd4de',gFront);
+    px(L-6,452,12,4,P.walkSeam,gFront);
+  });
+
+  /* ---- vending machine ---- */
+  A('circle',{cx:876,cy:414,r:46,fill:'url(#vendG'+mode+')'},gFront);
+  px(852,378,46,88,P.vendBody,gFront);
+  px(852,378,46,6,'#f2e6c6',gFront,0.85);
+  px(859,390,22,32,P.vendWin,gFront);
+  px(859,390,10,32,'#8fb8e6',gFront,0.4);
+  px(869,390,12,32,'#f0c76a',gFront,0.4);
+  for(let r2=0;r2<3;r2++)for(let c2=0;c2<3;c2++)
+    px(886,392+r2*10,7,7,P.lit[(R()*P.lit.length)|0],gFront,0.85);
+  px(858,436,34,5,P.roadEdge,gFront);
+  px(858,448,34,12,P.vendWin,gFront);
+
+  /* ---- cherry tree (real trunk + fluffy clusters) ---- */
+  const tx=225,baseY=464;
+  function cluster(cx,cy,s){
+    const rows=[0.35,0.62,0.85,1,0.9,0.68,0.4];
+    rows.forEach((f,j)=>px(cx-s*f/2,cy-s*0.5+j*s*0.155,s*f,s*0.2,P.blossom[0],gFront));
+    for(let i=0;i<s;i++){
+      px(cx-s/2+R()*s,cy-s*0.5+R()*s,4+R()*6,4+R()*4,P.blossom[1+(R()*3)|0],gFront);
+    }
+    for(let i=0;i<s*0.6;i++){
+      px(cx-s*0.35+R()*s*0.6,cy-s*0.45+R()*s*0.4,3+R()*4,3,P.blossomHi,gFront);
+    }
+  }
+  function branch(bx,by,dir,n){
+    for(let i=0;i<n;i++)px(bx+dir*i*4-2,by-i*7,5,8,P.trunk,gFront);
+  }
+  px(tx-5,baseY-96,10,96,P.trunk,gFront);
+  px(tx-3,baseY-122,7,32,P.trunk,gFront);
+  px(tx-8,baseY-6,16,6,P.trunk,gFront);
+  branch(tx,baseY-112,-1,5);
+  branch(tx+3,baseY-118,1,5);
+  cluster(tx-2,baseY-158,42);
+  cluster(tx-30,baseY-132,30);
+  cluster(tx+28,baseY-136,30);
+  cluster(tx-12,baseY-176,26);
+
+  /* ---- the railing cat ---- */
+  const catG=A('g',{id:'catG',class:'pettable'},gFront);
+  px(730,436,16,10,P.catC,catG);
+  px(730,430,8,7,P.catC,catG);
+  px(730,427,2,3,P.catC,catG);px(735,427,2,3,P.catC,catG);
+  A('rect',{x:732,y:432,width:1.4,height:1.4,fill:P.lampGlow?'#f6e7c2':'#cfd4de'},catG);
+  const tail=A('g',{'class':'catTail'},catG);
+  px(746,428,2.5,12,P.catC,tail);
+  px(744,425,2.5,4,P.catC,tail);
+
+  /* ---- vignette (full bleed) + click hit-zones ---- */
+  A('rect',{x:-EXT,y:0,width:W2,height:540,fill:'url(#vig'+mode+')'},svg);
+  const gTop=A('g',{},svg);
+  A('rect',{id:'hitCat',x:726,y:420,width:28,height:28,fill:'transparent',cursor:'pointer'},gTop);
+  A('rect',{id:'hitBeacon',x:tcx-10,y:210,width:20,height:20,fill:'transparent',cursor:'pointer'},gTop);
+
+  svg._px={gSky:gSky,gCity:gCity,gFront:gFront};
+  wireWallClicks(svg);
+}
+
+function wireWallClicks(svg){
+  if(svg.id!=='wall')return;
+  const cat=svg.querySelector('#hitCat');
+  if(cat)cat.onclick=e=>{e.stopPropagation();petCat();};
+  const bc=svg.querySelector('#hitBeacon');
+  if(bc)bc.onclick=e=>{e.stopPropagation();
+    if($('#desktop').classList.contains('ready')){spawnFlyer();toast('you knocked a duck off the tower.');}
+  };
+}
+let catPets=0;
+function petCat(){
+  if(!$('#desktop').classList.contains('ready'))return;
+  catPets++;
+  const cat=document.querySelector('#catG');
+  if(cat){cat.classList.add('wag');setTimeout(()=>cat.classList.remove('wag'),1300);}
+  const msgs=['mrrp.','prrrrr.','the cat allows this.','the cat leans into it.','the cat trusts you now.'];
+  toast(msgs[Math.min(catPets-1,msgs.length-1)]);
+  if(catPets===5){spawnWaddler(true);toast('a duck appears to celebrate the friendship.');}
+}
+
+/* parallax */
+const par={x:0,y:0,tx:0,ty:0};
+window.addEventListener('mousemove',e=>{
+  par.tx=(e.clientX/innerWidth)*2-1; par.ty=(e.clientY/innerHeight)*2-1;
+});
+function parallaxLoop(){
+  par.x+=(par.tx-par.x)*0.04; par.y+=(par.ty-par.y)*0.04;
+  const w=$('#wall'); if(w&&w._px){
+    w._px.gSky.setAttribute('transform','translate('+(par.x*7)+','+(par.y*3)+')');
+    w._px.gCity.setAttribute('transform','translate('+(par.x*13)+','+(par.y*5)+')');
+    w._px.gFront.setAttribute('transform','translate('+(par.x*20)+','+(par.y*8)+')');
+  }
+  requestAnimationFrame(parallaxLoop);
+}
+
+/* ================= petals ================= */
+function buildPetals(){
+  const R=Math.random, host=$('#petals');
+  for(let i=0;i<10;i++){
+    const p=document.createElement('div');p.className='petal';
+    p.style.left=(R()*100)+'%';
+    p.style.animationDuration=(11+R()*10)+'s';
+    p.style.animationDelay=(-R()*18)+'s';
+    const inner=document.createElement('div');
+    inner.style.width=inner.style.height=(3+R()*3)+'px';
+    inner.style.background=R()<0.5?'#eccbd6':'#f2d9e0';
+    inner.style.opacity=0.3+R()*0.3;
+    inner.style.animation='sway '+(3+R()*3).toFixed(1)+'s ease-in-out infinite alternate';
+    p.appendChild(inner);host.appendChild(p);
+  }
+}
+
+/* ================= clock ================= */
+function tickClock(){
+  const d=new Date();
+  const t=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false});
+  $('#clockTime').textContent=t; $('#lt').textContent=t;
+  $('#clockDate').textContent=d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'});
+  $('#ld').textContent=d.toLocaleDateString([],{weekday:'long',day:'numeric',month:'long'});
+}
+
+/* ================= theme ================= */
+let theme=store.get('udai-theme')||'night';
+function applyTheme(mode,animate){
+  theme=mode; document.body.dataset.theme=mode;
+  store.set('udai-theme',mode);
+  const paint=()=>{buildWallpaper($('#wall'),mode,wallSeed);$('#wall').style.opacity=1;};
+  if(animate){$('#wall').style.opacity=0;setTimeout(paint,300);}else paint();
+  $('#themeBtn').innerHTML='<img src="'+iconURL(mode==='night'?'sun':'moon')+'" alt="">';
+  $('#themeBtn').title=mode==='night'?'switch to day':'switch to night';
+  window.dispatchEvent(new CustomEvent('themechange',{detail:mode}));
+}
+
+/* ================= boot & login ================= */
+function bootSequence(done){
+  const boot=$('#boot'),log=$('#bootLog'),fill=$('#bootFill');
+  boot.classList.remove('hidden');boot.style.opacity=1;
+  log.style.color='#9bd0ba';
+  log.textContent='';fill.style.width='0';
+  const lines=[
+   'UDAI OS [version 3.2.1]',
+   '(c) Ducksoft Corporation. All rights reserved.','',
+   'loading kernel ................ OK',
+   'mounting C:\\projects .......... OK',
+   'waking the RAG pipeline ....... OK',
+   'syncing commit calendar ....... OK',
+   'feeding the railing cat ....... OK',
+   'hatching ducks ................ OK',
+   'starting desktop .............. OK'];
+  let i=0,skip=false;
+  const timers=[];
+  function next(){ if(i<lines.length){log.textContent+=lines[i++]+'\n';timers.push(setTimeout(next,240));}
+    else{timers.push(setTimeout(()=>{fill.style.width='100%';timers.push(setTimeout(finish,900));},250));} }
+  function finish(){ if(skip)return; skip=true;
+    boot.style.opacity=0;setTimeout(()=>boot.classList.add('hidden'),460);done(); }
+  boot.onclick=()=>{timers.forEach(clearTimeout);finish();};
+  next();
+}
+function initLogin(){
+  const login=$('#login');
+  login.classList.remove('hidden');login.style.opacity=1;
+  $('#loginName').textContent=CONFIG.name;
+  $('#avatarImg').src=iconURL('user');
+  $('#powerImg').src=iconURL('power');
+  $('#signinBtn').classList.add('hidden');
+  $('#welcome').classList.add('hidden');
+  $('#avatarBtn').classList.remove('hidden');
+  $('#avatarBtn').onclick=()=>$('#signinBtn').classList.remove('hidden');
+  $('#signinBtn').onclick=()=>{
+    $('#signinBtn').classList.add('hidden');$('#avatarBtn').classList.add('hidden');
+    $('#welcome').classList.remove('hidden');
+    setTimeout(()=>{login.style.opacity=0;setTimeout(()=>{login.classList.add('hidden');enterDesktop();},520);},1300);
+  };
+  $('#loginPower').onclick=()=>toast("there's no escape — sign in.");
+}
+
+/* ================= apps ================= */
+const APPS={
+  about:{title:'about_me.exe',icon:'user',w:560,h:540,render:renderAbout},
+  resume:{title:'resume.pdf',icon:'doc',w:640,h:600,render:renderResume},
+  skills:{title:'skills.sys',icon:'chart',w:620,h:580,render:renderSkills},
+  projects:{title:'projects/',icon:'folder',w:680,h:490,render:renderProjects},
+  experience:{title:'experience/',icon:'brief',w:620,h:560,render:renderExperience},
+  education:{title:'education.dat',icon:'cap',w:580,h:540,render:renderEducation},
+  code:{title:'code.exe',icon:'mon',w:660,h:520,render:renderCode},
+  game:{title:'duck_hunt.exe',icon:'pad',w:540,h:440,render:renderGame},
+  contact:{title:'contact.exe',icon:'mail',w:520,h:570,render:renderContact},
+  readme:{title:'readme.txt',icon:'note',w:470,h:560,render:renderReadme},
+  virus:{title:'duck_virus.exe',icon:'warn',w:400,h:290,render:renderVirus,virus:true},
+};
+const ICON_ORDER=['about','resume','skills','projects','experience','education','code','game','contact'];
+
+/* ---------- window manager ---------- */
+let zTop=10; const wins=new Map();
+function openApp(id){
+  const def=APPS[id]; if(!def)return;
+  if(wins.has(id)){const w=wins.get(id);if(w.min)restoreWin(id);focusWin(id);return;}
+  const el=document.createElement('section');el.className='win'+(def.virus?' virus':'');
+  const vw=innerWidth,vh=innerHeight;
+  const W=Math.min(def.w,vw-24),H=Math.min(def.h,vh-70);
+  const n=wins.size;
+  let L,T;
+  if(def.virus){L=vw/2-W/2+(Math.random()*70-35);T=60+Math.random()*50;}
+  else{
+    L=(vw-W)/2+(n-1)*22-20;
+    T=(vh-44-H)/2+(n-1)*16-14;
+    L=Math.max(8,Math.min(L,vw-W-8));
+    T=Math.max(8,Math.min(T,vh-44-H-8));
+  }
+  el.style.left=L+'px';el.style.top=T+'px';el.style.width=W+'px';el.style.height=H+'px';
+  el.style.zIndex=def.virus?4000:(++zTop);
+  el.innerHTML='<header class="tbar"><img class="ticon" src="'+iconURL(def.icon)+'" alt="">'
+    +'<span class="ttitle">'+def.title+'</span><span class="tbtns">'
+    +'<button class="wbtn btn-min" aria-label="minimize"></button>'
+    +'<button class="wbtn btn-max" aria-label="maximize / restore"></button>'
+    +'<button class="wbtn btn-close" aria-label="close"></button></span></header>'
+    +'<div class="wbody"></div><div class="rsz" title="drag to resize"></div>';
+  $('#winlayer').appendChild(el);
+  const rec={el:el,min:false,maxed:false,prev:null,cleanup:null};
+  wins.set(id,rec);
+  el.querySelector('.btn-close').onclick=e=>{e.stopPropagation();closeWin(id);};
+  el.querySelector('.btn-min').onclick=e=>{e.stopPropagation();minimizeWin(id);};
+  el.querySelector('.btn-max').onclick=e=>{e.stopPropagation();toggleMax(id);};
+  el.addEventListener('pointerdown',()=>focusWin(id));
+  const tb=el.querySelector('.tbar');
+  tb.addEventListener('dblclick',e=>{if(!e.target.closest('.wbtn'))toggleMax(id);});
+  makeDraggable(el,tb,rec);
+  makeResizable(el,rec);
+  if(!def.virus){
+    const b=document.createElement('button');b.className='taskbtn active';
+    b.innerHTML='<img src="'+iconURL(def.icon)+'" alt=""><span>'+def.title+'</span>';
+    b.onclick=()=>{
+      const w=wins.get(id);if(!w)return;
+      if(w.min){restoreWin(id);focusWin(id);}
+      else if(w.el.classList.contains('focus'))minimizeWin(id);
+      else focusWin(id);
+    };
+    $('#tasks').appendChild(b);rec.task=b;
+  }
+  focusWin(id);
+  rec.cleanup=def.render(el.querySelector('.wbody'),rec)||null;
+}
+function makeResizable(el,rec){
+  const h=el.querySelector('.rsz');
+  h.addEventListener('pointerdown',e=>{
+    if(rec.maxed)return;
+    e.stopPropagation();e.preventDefault();
+    h.setPointerCapture(e.pointerId);
+    const sw=el.offsetWidth,sh=el.offsetHeight,sx=e.clientX,sy=e.clientY;
+    const mv=ev=>{
+      const W=Math.max(280,sw+ev.clientX-sx),H=Math.max(170,sh+ev.clientY-sy);
+      el.style.width=Math.min(W,innerWidth-el.offsetLeft-4)+'px';
+      el.style.height=Math.min(H,innerHeight-el.offsetTop-8)+'px';
+    };
+    const up=()=>{h.removeEventListener('pointermove',mv);h.removeEventListener('pointerup',up);};
+    h.addEventListener('pointermove',mv);h.addEventListener('pointerup',up);
+  });
+}
+function focusWin(id){
+  const rec=wins.get(id);if(!rec)return;
+  wins.forEach(w=>w.el.classList.remove('focus'));
+  rec.el.classList.add('focus');
+  rec.el.style.zIndex=rec.el.classList.contains('virus')?4000:(++zTop);
+  wins.forEach((w,k)=>{if(w.task)w.task.classList.toggle('active',k===id&&!w.min);});
+}
+function minimizeWin(id){
+  const rec=wins.get(id);if(!rec||rec.min)return;
+  rec.min=true;rec.el.classList.add('minimizing');
+  if(rec.task){rec.task.classList.add('min');rec.task.classList.remove('active');}
+  setTimeout(()=>{if(rec.min)rec.el.style.display='none';rec.el.classList.remove('minimizing');},290);
+}
+function restoreWin(id){
+  const rec=wins.get(id);if(!rec||!rec.min)return;
+  rec.min=false;rec.el.style.display='flex';
+  rec.el.style.transform='translateY(58vh) scale(.15)';rec.el.style.opacity='0';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    rec.el.style.transition='transform .28s ease,opacity .28s ease';
+    rec.el.style.transform='';rec.el.style.opacity='';
+    setTimeout(()=>{rec.el.style.transition='';},300);
+  }));
+  if(rec.task)rec.task.classList.remove('min');
+}
+function toggleMax(id){
+  const rec=wins.get(id);if(!rec)return;
+  const s=rec.el.style;
+  if(!rec.maxed){
+    rec.prev={l:s.left,t:s.top,w:s.width,h:s.height};
+    rec.el.classList.add('max');rec.maxed=true;
+  }else{
+    rec.el.classList.remove('max');rec.maxed=false;
+    if(rec.prev){s.left=rec.prev.l;s.top=rec.prev.t;s.width=rec.prev.w;s.height=rec.prev.h;}
+  }
+}
+function closeWin(id){
+  const rec=wins.get(id);if(!rec)return;
+  if(rec.cleanup)rec.cleanup();
+  rec.el.classList.add('closing');
+  setTimeout(()=>rec.el.remove(),230);
+  if(rec.task)rec.task.remove();
+  wins.delete(id);
+}
+function makeDraggable(el,handle,rec){
+  handle.addEventListener('pointerdown',e=>{
+    if(e.target.closest('.wbtn')||rec.maxed)return;
+    const ox=e.clientX-el.offsetLeft,oy=e.clientY-el.offsetTop;
+    handle.setPointerCapture(e.pointerId);
+    const mv=ev=>{
+      let x=ev.clientX-ox,y=ev.clientY-oy;
+      x=Math.max(72-el.offsetWidth,Math.min(x,innerWidth-72));
+      y=Math.max(0,Math.min(y,innerHeight-44-32));
+      el.style.left=x+'px';el.style.top=y+'px';
+    };
+    const up=()=>{handle.removeEventListener('pointermove',mv);handle.removeEventListener('pointerup',up);};
+    handle.addEventListener('pointermove',mv);handle.addEventListener('pointerup',up);
+  });
+}
+
+/* ---------- app contents ---------- */
+function renderAbout(b){
+  b.innerHTML='<div class="about">'
+    +'<div class="ab-head"><img src="'+iconURL('user')+'" alt="">'
+    +'<div><b>'+CONFIG.name+'</b><span>'+CONFIG.role+'</span></div></div>'
+    +'<p>Final-year B.E. computer science student at Thapar Institute, Patiala. I build '
+    +'backend-first systems — RAG pipelines, NLP-driven services, Django &amp; FastAPI APIs — '
+    +'and I like software that feels calm and obvious on the surface. Interned at Shunya AgriTech '
+    +'shipping a production dashboard and a computer-vision grading model, and I run software '
+    +'for my family\'s business end-to-end. Currently growing into agentic AI.</p>'
+    +'<hr class="hr"><div class="h3">quick facts</div>'
+    +'<div class="facts">'
+    +'<div><small>FOCUS</small><b>backend &amp; applied AI/RAG</b></div>'
+    +'<div><small>LEARNING</small><b>agentic AI, system design</b></div>'
+    +'<div><small>BASE</small><b>Patiala, Punjab, India</b></div>'
+    +'<div><small>STATUS</small><b>open for SDE internships</b></div>'
+    +'</div><hr class="hr">'
+    +'<div style="display:flex;gap:10px;flex-wrap:wrap">'
+    +'<a class="btn" href="'+CONFIG.github+'" target="_blank" rel="noopener">github</a>'
+    +'<a class="btn" href="'+CONFIG.linkedin+'" target="_blank" rel="noopener">linkedin</a>'
+    +'<button class="btn gold" id="abRes">resume.pdf</button></div>'
+    +'<p class="mut" style="font-size:12px;margin-top:14px">This whole desktop is hand-written — one HTML file, no frameworks. If it quacks, it\'s a feature.</p>'
+    +'</div>';
+  b.querySelector('#abRes').onclick=()=>openApp('resume');
+}
+function skRow(nm,lv,c){
+  let segs='';for(let i=0;i<12;i++)segs+='<span class="seg" style="transition-delay:'+(i*40)+'ms"></span>';
+  return '<div class="sk-row" data-lv="'+lv+'" data-c="'+c+'"><span class="nm">'+nm+'</span><span class="segbar">'+segs+'</span><span class="lv">'+lv+'/12</span></div>';
+}
+function renderSkills(b){
+  const meters=[
+    {g:'languages & core',c:'gold',items:[['Python',10],['C++',8],['SQL',8],['JavaScript',8],['HTML / CSS',8]]},
+    {g:'backend & systems',c:'blue',items:[['Django / DRF',9],['FastAPI',8],['REST APIs',9],['WebSockets',7],['Auth / RBAC',7]]},
+    {g:'ai & llm',c:'sage',items:[['RAG (vectorless)',8],['Prompt engineering',9],['scikit-learn',7],['PyTorch',6]]},
+  ];
+  const chips=[
+    ['frontend & mobile',['React','React Native','Bootstrap 5']],
+    ['databases & infra',['PostgreSQL','MySQL','SQLite','MongoDB','Redis','Docker','AWS','CI/CD','Git']],
+    ['core cs',['DSA','OOP','SDLC','System Design']],
+    ['ways of working',['Agile/Scrum','Jira','Notion','GitHub Projects','AI-assisted dev (Claude)']],
+  ];
+  let html=meters.map(gr=>'<div class="sk-group"><div class="h3">'+gr.g+'</div>'
+    +gr.items.map(it=>skRow(it[0],it[1],gr.c)).join('')+'</div>').join('');
+  html+=chips.map(c=>'<div class="sk-group"><div class="h3">'+c[0]+'</div>'+c[1].map(s=>'<span class="chip">'+s+'</span>').join('')+'</div>').join('');
+  html+='<div class="h3">certifications</div><div class="certline">AWS Academy Graduate — Microservices &amp; CI/CD · Cloud Foundations</div>'
+    +'<p class="mut" style="font-family:var(--mono);font-size:11px;margin-top:12px">levels are honest, not inflated.</p>';
+  b.innerHTML=html;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    b.querySelectorAll('.sk-row').forEach(row=>{
+      const lv=+row.dataset.lv,c=row.dataset.c;
+      row.querySelectorAll('.seg').forEach((s,i)=>{if(i<lv)setTimeout(()=>s.classList.add('on-'+c),80+i*45);});
+    });
+  }));
+}
+const PROJECTS=[
+ {id:'ArchiAI',yr:'2026 · ai/backend · django rest',desc:"Bylaw-compliant architectural design platform. A Django REST backend that parses natural-language project requirements into deterministic, explainable design sessions. A vectorless RAG retriever grounds answers in bylaw & architecture knowledge — chosen over embedding similarity for this compliance-sensitive domain. Iteratively engineered Ollama prompts for structured JSON output; async job system for Hypar export; 15+ endpoints secured with auth & RBAC; ~30% faster API responses via query optimization and CI/CD.",stack:['Django REST Framework','Ollama','RAG','Docker']},
+ {id:'binance_bot',yr:'2026 · algo-trading · fastapi',desc:"Co-developed a full-stack algorithmic trading system for Binance Futures — multi-timeframe signal engine (RSI, MACD, Bollinger Bands, Supertrend, ADX), Kelly Criterion sizing and a 5-rule risk manager. A news engine scores NLP sentiment across 15+ RSS feeds in real time; 9-tab dashboard with Telegram alerts and a SQLite journal that auto-extracts trade lessons.",stack:['FastAPI','WebSockets','SQLite','Docker']},
+ {id:'Lender Lens',yr:'2025 · fintech · analytics',desc:"A lending analytics platform that turns raw loan-book data into decisions — applicant credit scoring through an ML pipeline, repayment-health tracking, and portfolio-risk views so lenders can see exposure at a glance.",stack:['Django','DRF','scikit-learn','PostgreSQL']},
+ {id:'Monika ERP',yr:'2024 – present · erp · in production',desc:"A lightweight ERP built for Monika Engineers — unifies the CRM, attendance and inventory modules the business runs on daily. Owned end-to-end: requirements with ownership, data model, modules, deployment, and the ongoing changes real usage demands.",stack:['Python','React','SQLite','Supabase']},
+ {id:'SkyLearn',yr:'2025 · full-stack · lms',desc:"A Django learning management system with 4 user roles, automated grade/GPA calculation and 5 integrated payment gateways (Stripe, PayPal, Coinbase, Paylike, GoPay), with ReportLab-powered report generation.",stack:['Django','Bootstrap 5','ReportLab']},
+ {id:'lofi.desktop',yr:'2025 · web · this site',desc:"The desktop you're looking at. A hand-built pixel OS in a single HTML file — a window manager, draggable apps, a working code sandbox, and a recurring duck epidemic.",stack:['HTML','CSS','JavaScript','SVG','canvas']},
+];
+function renderProjects(b){
+  b.innerHTML='<div class="pj"><div class="pj-list">'
+    +PROJECTS.map((p,i)=>'<div class="pj-item '+(i===0?'on':'')+'" data-i="'+i+'"><b>'+p.id+'</b><small>'+p.yr+'</small></div>').join('')
+    +'</div><div class="pj-detail"></div></div>';
+  const det=b.querySelector('.pj-detail');
+  function show(i){
+    const p=PROJECTS[i];
+    det.innerHTML='<h4>'+p.id+'</h4><div class="yr">'+p.yr+'</div><p>'+p.desc+'</p>'
+      +'<div>'+p.stack.map(s=>'<span class="chip">'+s+'</span>').join('')+'</div>'
+      +'<hr class="hr"><div style="display:flex;gap:10px">'
+      +'<a class="btn gold" href="'+CONFIG.github+'" target="_blank" rel="noopener" style="text-decoration:none">source</a></div>';
+  }
+  b.querySelectorAll('.pj-item').forEach(it=>{
+    it.onclick=()=>{b.querySelectorAll('.pj-item').forEach(x=>x.classList.remove('on'));it.classList.add('on');show(+it.dataset.i);};
+  });
+  show(0);
+}
+function renderExperience(b){
+  b.innerHTML='<div class="h3">experience</div><div class="tl">'
+    +'<div class="tl-item"><span class="t">Jun 2026 — Aug 2026</span><h4>Software Engineering Intern — Shunya AgriTech</h4>'
+    +'<div class="s">Gurgaon, India · Remote</div>'
+    +'<p>Built a Django dashboard giving the operations team live visibility into plant-production stage status and QC metrics — reverse-engineering an unfamiliar <b style="color:var(--ink)">24-table MySQL schema</b> into clean Django models. Shipped an image-based fodder-grading ML model trained on a <b style="color:var(--ink)">1,320-image</b> dataset (79% accuracy on fodder detection, 100% on non-fodder), plus an API automation-testing platform for the dashboard\'s service layer.</p></div>'
+    +'<div class="tl-item"><span class="t">2023 — Present</span><h4>Software Developer — Monika Engineers</h4>'
+    +'<div class="s">Ludhiana, Punjab · family business, part-time</div>'
+    +'<p>Built and deployed a CRM (Python, IMAP, SQLite), a live company website (React), and an attendance app (React Native, Supabase) — translating ownership\'s operational needs into working software. Acted as the de-facto business analyst: gathering requirements and owning scope end-to-end.</p></div>'
+    +'</div><p class="mut" style="font-family:var(--mono);font-size:11px;margin-top:6px">references & letters available on request.</p>';
+}
+function renderEducation(b){
+  b.innerHTML='<div class="h3">education</div><div class="tl">'
+    +'<div class="tl-item"><span class="t">Aug 2024 — May 2027</span><h4>B.E., Computer Science — Thapar Institute of Engineering &amp; Technology</h4>'
+    +'<div class="s">Patiala, Punjab</div>'
+    +'<p>Core coursework: DSA, DBMS, Operating Systems, Computer Networks, OOP, System Design, Discrete Mathematics.</p></div>'
+    +'<div class="tl-item"><span class="t">Aug 2021 — Aug 2024</span><h4>Diploma in Computer Science — Thapar Polytechnic College</h4>'
+    +'<div class="s">Patiala, Punjab</div>'
+    +'<p>Started the programming habit early — C, C++, and the realisation that debugging is most of the job.</p></div>'
+    +'</div><div class="h3" style="margin-top:16px">certifications</div>'
+    +'<div><span class="chip gold">AWS Academy — Microservices &amp; CI/CD</span><span class="chip gold">AWS Academy — Cloud Foundations</span></div>';
+}
+function renderReadme(b){
+  b.innerHTML='<div class="rd"><pre>hi, welcome to my desktop.\n\n'
+    +'the basics:\n\n'
+    +'- <b>double-click</b> any icon to open it\n'
+    +'- <b>resume.pdf</b> opens my resume — download it there\n'
+    +'- <b>projects/</b> and <b>experience/</b> are separate — code vs jobs\n'
+    +'- the <b>code editor</b> actually runs code (try duck.js)\n'
+    +'- <b>duck_hunt.exe</b> is a real (tiny) game\n'
+    +'- click the <b>clock</b> for my commit calendar\n'
+    +'- the sun/moon button flips <b>day / night</b>\n'
+    +'- drag the <b>bottom-right corner</b> of any window to resize it\n\n'
+    +'psst — secrets (don\'t tell the recruiters):\n\n'
+    +'- the old <b>konami code</b> still works. you know the one.\n'
+    +'- type <b>"quack"</b> and see who answers\n'
+    +'- <b>double-click the wallpaper</b> to regenerate the whole city\n'
+    +'- there\'s a <b>cat on the railing</b>. pet it. keep petting it.\n'
+    +'- click the <b>red light on the tall tower</b>. poor duck.\n'
+    +'- <b>ctrl+alt+d</b> if you actually WANT the virus\n\n'
+    +'— '+CONFIG.name+'</pre></div>';
+}
+function renderContact(b){
+  b.innerHTML='<div class="cnt"><div class="h3">send a message</div><form id="cform">'
+    +'<label>NAME</label><input name="n" required maxlength="60">'
+    +'<label>EMAIL</label><input name="e" type="email" required maxlength="80">'
+    +'<label>MESSAGE</label><textarea name="m" rows="4" required maxlength="600"></textarea>'
+    +'<div class="row"><button class="btn gold" type="submit">send it</button>'
+    +'<a class="btn" href="mailto:'+CONFIG.email+'" style="text-decoration:none">email</a>'
+    +'<a class="btn" href="tel:'+CONFIG.phone.replace(/\s/g,'')+'" style="text-decoration:none">call</a>'
+    +'<a class="btn" href="'+CONFIG.github+'" target="_blank" rel="noopener" style="text-decoration:none">github</a>'
+    +'<a class="btn" href="'+CONFIG.linkedin+'" target="_blank" rel="noopener" style="text-decoration:none">linkedin</a></div>'
+    +'<div class="note">'+CONFIG.phone+' · '+CONFIG.email+'<br>this demo form stores messages in your browser\'s local outbox.</div>'
+    +'</form></div>';
+  b.querySelector('#cform').onsubmit=e=>{
+    e.preventDefault();
+    const f=e.target;
+    let box=[];
+    try{box=JSON.parse(store.get('outbox')||'[]')||[];}catch(err){box=[];}
+    box.push({n:f.n.value,e:f.e.value,m:f.m.value,at:Date.now()});
+    store.set('outbox',JSON.stringify(box));
+    toast('draft saved locally — or mail me directly.');
+    f.reset();
+  };
+}
+function renderVirus(b){
+  b.innerHTML='<div class="virus-body"><img src="'+iconURL('warn')+'" alt="">'
+    +'<div><h3>duck_virus.exe</h3><p>a wild duck has breached your firewall.<br>recommended action: quack responsibly.</p></div></div>'
+    +'<div class="virus-btns"><button class="btn gold vq">quack back</button><button class="btn vd">dismiss</button></div>';
+  b.querySelector('.vq').onclick=()=>{spawnWaddler(true);spawnWaddler(true);toast('quack. quack.');closeWin('virus');};
+  b.querySelector('.vd').onclick=()=>closeWin('virus');
+}
+
+/* ---------- resume ---------- */
+function resumeMarkup(){
+  return '<h1>Udai Batta</h1>'
+  +'<div class="rs-sub">'+CONFIG.phone+' · '+CONFIG.email+' · linkedin.com/in/udai-batta · github.com/UdaiBatta</div>'
+  +'<div class="rs-role">Software Engineer — Backend · Full-Stack · Applied AI/RAG</div>'
+  +'<h2>Summary</h2>'
+  +'<p>Final-year B.E. student with hands-on experience building RAG-based and NLP-driven systems in production-style Django/FastAPI backends, alongside a computer-vision model shipped during a software engineering internship at Shunya AgriTech. Practiced in iterative prompt engineering — for LLM-driven application features (Ollama) and AI-assisted development (Claude). Strong CS fundamentals, backend-first, growing into agentic AI.</p>'
+  +'<h2>Education</h2>'
+  +'<div class="rs-row"><h3>Thapar Institute of Engineering and Technology — B.E.</h3><span class="rs-meta">Aug 2024 – May 2027</span></div>'
+  +'<div class="rs-it">Patiala, Punjab</div>'
+  +'<div class="rs-row"><h3>Thapar Polytechnic College — Diploma in Computer Science</h3><span class="rs-meta">Aug 2021 – Aug 2024</span></div>'
+  +'<div class="rs-it">Patiala, Punjab</div>'
+  +'<h2>Experience</h2>'
+  +'<div class="rs-row"><h3>Software Engineering Intern — Shunya AgriTech</h3><span class="rs-meta">Jun 2026 – Aug 2026</span></div>'
+  +'<div class="rs-it">Gurgaon, India — Remote</div>'
+  +'<ul><li>Built a Django dashboard giving the operations team live visibility into plant-production stage status and QC metrics, reverse-engineering an unfamiliar <b>24-table MySQL schema</b> into clean Django models.</li>'
+  +'<li>Built an image-based fodder-grading ML model on a <b>1,320-image</b> dataset — <b>79%</b> accuracy on fodder detection, <b>100%</b> on non-fodder — plus an API automation testing platform for the dashboard\'s service layer.</li></ul>'
+  +'<div class="rs-row"><h3>Software Developer — Monika Engineers (family business, part-time)</h3><span class="rs-meta">2023 – Present</span></div>'
+  +'<div class="rs-it">Ludhiana, Punjab</div>'
+  +'<ul><li>Built and deployed a CRM (Python, IMAP, SQLite), a live company website (React) and an attendance app (React Native, Supabase).</li>'
+  +'<li>Acted as business analyst — gathering requirements and owning scope end-to-end.</li></ul>'
+  +'<h2>Projects</h2>'
+  +'<div class="rs-row"><h3>ArchiAI — Bylaw-Compliant Architectural Design Platform</h3><span class="rs-meta">Apr 2026 – Present</span></div>'
+  +'<div class="rs-it">Django REST Framework · Ollama · RAG · Docker</div>'
+  +'<ul><li>Django REST backend for deterministic, bylaw-compliant layout generation; parses natural-language requirements into structured, explainable design sessions.</li>'
+  +'<li>Designed a <b>vectorless RAG retriever</b> for bylaw grounding — deterministic, explainable retrieval over embedding similarity for a compliance-sensitive domain; async job system for Hypar export.</li>'
+  +'<li>Iterative Ollama prompt engineering for structured JSON; <b>15+</b> REST endpoints secured with auth &amp; RBAC; <b>~30%</b> faster API responses via query optimization and CI/CD.</li></ul>'
+  +'<div class="rs-row"><h3>Binance Futures Trading Bot</h3><span class="rs-meta">Apr 2026</span></div>'
+  +'<div class="rs-it">FastAPI · WebSockets · SQLite · Docker</div>'
+  +'<ul><li>Co-developed a full-stack algo-trading system — multi-timeframe signal engine (RSI, MACD, Bollinger, Supertrend, ADX), Kelly Criterion sizing, 5-rule risk manager.</li>'
+  +'<li>NLP sentiment across <b>15+</b> RSS feeds in real time; 9-tab dashboard, Telegram alerts, SQLite journal that auto-extracts trade lessons.</li></ul>'
+  +'<div class="rs-row"><h3>Lender Lens — Lending Analytics Platform</h3><span class="rs-meta">2025</span></div>'
+  +'<div class="rs-it">Django · DRF · scikit-learn · PostgreSQL</div>'
+  +'<ul><li>Credit scoring through an ML pipeline, repayment-health tracking and portfolio-risk views — turning raw loan-book data into clear lending decisions.</li></ul>'
+  +'<div class="rs-row"><h3>Monika ERP — In-House ERP</h3><span class="rs-meta">2024 – Present</span></div>'
+  +'<div class="rs-it">Python · React · SQLite · Supabase</div>'
+  +'<ul><li>Lightweight ERP for Monika Engineers unifying CRM, attendance and inventory; owned end-to-end from requirements to deployment.</li></ul>'
+  +'<div class="rs-row"><h3>SkyLearn — Django Learning Management System</h3><span class="rs-meta">Oct 2025</span></div>'
+  +'<div class="rs-it">Django · Bootstrap 5 · ReportLab</div>'
+  +'<ul><li>Django LMS with <b>4 user roles</b>, automated grade/GPA calculation, <b>5</b> payment gateways (Stripe, PayPal, Coinbase, Paylike, GoPay).</li></ul>'
+  +'<h2>Skills</h2>'
+  +'<p><b>AI &amp; LLM:</b> RAG (vectorless retrieval), Ollama, prompt engineering for structured outputs, AI-assisted development (Claude), NLP sentiment, PyTorch, scikit-learn</p>'
+  +'<p><b>Languages &amp; Core:</b> Python, C++, SQL, JavaScript, HTML/CSS; DSA, OOP, SDLC, System Design</p>'
+  +'<p><b>Backend &amp; Systems:</b> Django, DRF, FastAPI, REST APIs, Async Processing, WebSockets, Authentication, RBAC</p>'
+  +'<p><b>Frontend &amp; Mobile:</b> React, React Native, Bootstrap 5</p>'
+  +'<p><b>Databases, Cloud &amp; Infra:</b> PostgreSQL, MySQL, SQLite, MongoDB, Redis, Docker, AWS, CI/CD, Git</p>'
+  +'<p><b>Certifications:</b> AWS Academy Graduate — Microservices &amp; CI/CD, Cloud Foundations</p>';
+}
+function printResume(){
+  const root=$('#printRoot');
+  if(!root.innerHTML.trim())root.innerHTML=resumeMarkup();
+  document.body.classList.add('printing');
+  const done=()=>document.body.classList.remove('printing');
+  window.addEventListener('afterprint',done,{once:true});
+  setTimeout(()=>{window.print();setTimeout(done,900);},80);
+}
+async function downloadResume(){
+  try{
+    const r=await fetch(CONFIG.resumeURL,{cache:'no-store'});
+    if(r.ok){
+      const blob=await r.blob(),u=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=u;a.download='Udai_Batta_Resume.pdf';
+      document.body.appendChild(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(u),4000);
+      toast('resume.pdf — downloading.');return;
+    }
+  }catch(e){}
+  toast('no resume.pdf beside this file — opening print dialog: choose "Save as PDF".');
+  setTimeout(printResume,750);
+}
+function renderResume(b){
+  b.innerHTML='<div class="rs-bar">'
+    +'<button class="btn gold" id="rsDl">download pdf</button>'
+    +'<button class="btn" id="rsPr">print</button>'
+    +'<span class="rs-tip">tip: place a real resume.pdf next to this html file and the download button grabs it directly — otherwise it opens the print dialog (choose "Save as PDF").</span>'
+    +'</div><div class="rs-doc">'+resumeMarkup()+'</div>';
+  b.querySelector('#rsDl').onclick=downloadResume;
+  b.querySelector('#rsPr').onclick=printResume;
+}
+
+/* ---------- code editor ---------- */
+const FILES={};
+function renderCode(b){
+  b.classList.add('pad0');
+  if(!FILES['portfolio.js'])FILES['portfolio.js']=$('#file-portfolio').textContent.trimStart();
+  if(!FILES['duck.js'])FILES['duck.js']=$('#file-duck').textContent.trimStart();
+  b.innerHTML='<div class="ed"><div class="ed-tabs">'
+    +'<button class="ed-tab on" data-f="portfolio.js">portfolio.js</button>'
+    +'<button class="ed-tab" data-f="duck.js">duck.js</button>'
+    +'<span class="ed-hint">ctrl+enter to run · editable</span></div>'
+    +'<div class="ed-main"><div class="gutter"></div>'
+    +'<div class="ed-code"><pre class="hl"></pre><textarea spellcheck="false"></textarea></div></div>'
+    +'<div class="ed-out"><div class="ed-out-head"><span>console</span><button class="btn gold run">run &#9654;</button></div>'
+    +'<pre class="out">// output appears here</pre></div></div>';
+  const ta=b.querySelector('textarea'),hl=b.querySelector('.hl'),gut=b.querySelector('.gutter'),out=b.querySelector('.out');
+  let cur='portfolio.js';
+  const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  function highlight(){
+    const src=ta.value;
+    const rx=/(\/\/[^\n]*)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)|\b(const|let|var|function|return|if|else|for|while|of|in|new|class|true|false|null|undefined|async|await|import|from|export)\b|\b(\d+(?:\.\d+)?)\b/g;
+    hl.innerHTML=esc(src).replace(rx,
+      (m,c,s,k,n)=>c?'<span class="tk-c">'+c+'</span>':s?'<span class="tk-s">'+s+'</span>':k?'<span class="tk-k">'+k+'</span>':'<span class="tk-n">'+n+'</span>')+'\n';
+    const n=src.split('\n').length;
+    let g='';for(let i=1;i<=n;i++)g+=i+(i<n?'<br>':'');
+    gut.innerHTML=g;
+  }
+  function load(f){cur=f;ta.value=FILES[f];highlight();sync();
+    b.querySelectorAll('.ed-tab').forEach(t=>t.classList.toggle('on',t.dataset.f===f));}
+  function sync(){hl.scrollTop=ta.scrollTop;hl.scrollLeft=ta.scrollLeft;gut.scrollTop=ta.scrollTop;}
+  ta.addEventListener('input',()=>{FILES[cur]=ta.value;highlight();});
+  ta.addEventListener('scroll',sync);
+  ta.addEventListener('keydown',e=>{
+    if(e.key==='Tab'){e.preventDefault();const s=ta.selectionStart;ta.setRangeText('  ',s,ta.selectionEnd,'end');FILES[cur]=ta.value;highlight();}
+    if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();run();}
+  });
+  function run(){
+    const logs=[];
+    const fc={log:function(){logs.push([].slice.call(arguments).map(v=>typeof v==='object'?JSON.stringify(v):String(v)).join(' '));},
+      warn:function(){logs.push('! '+[].slice.call(arguments).join(' '));},
+      error:function(){logs.push('\u2715 '+[].slice.call(arguments).join(' '));}};
+    try{
+      new Function('console','spawnDuck',FILES[cur])(fc,function(n){for(let i=0;i<(n||1);i++)spawnWaddler(true);});
+      out.innerHTML=(logs.length?logs:['(no output — add a console.log)']).map(l=>esc(l)).join('\n');
+      if(logs.length)toast('code.exe ran successfully.');
+    }catch(err){out.innerHTML='<span class="err">\u2715 '+esc(err.message)+'</span>';}
+  }
+  b.querySelector('.run').onclick=run;
+  b.querySelectorAll('.ed-tab').forEach(t=>t.onclick=()=>load(t.dataset.f));
+  load('portfolio.js');
+  return null;
+}
+
+/* ---------- duck hunt ---------- */
+const GAME_BG={
+ night:['#54628c','#aea9c6','#ecd5c5','#3c466a','#1f2540','#131a2e','#cfc3d6'],
+ day:['#79a8d8','#c2dded','#f4ead0','#5d6b8e','#4c5a7a','#2e3a56','#e8e0e8']
+};
+function renderGame(b){
+  b.classList.add('pad0');
+  b.innerHTML='<div class="gm"><div class="gm-hud">'
+    +'<span>score<b class="gs">0</b></span><span>misses<b class="gm2">0</b></span><span>best<b class="gb">0</b></span>'
+    +'<button class="btn gr">reset</button></div>'
+    +'<div class="gm-stage"><canvas width="240" height="150"></canvas>'
+    +'<div class="gm-overlay"><div class="gm-ov-t">duck hunt</div>'
+    +'<div class="gm-ov-s">click the ducks. don\'t click the sky.</div>'
+    +'<button class="btn gold go">start</button></div></div></div>';
+  const cv=b.querySelector('canvas'),cx=cv.getContext('2d');
+  cx.imageSmoothingEnabled=false;
+  const bg=document.createElement('canvas');bg.width=240;bg.height=150;
+  const bx=bg.getContext('2d');bx.imageSmoothingEnabled=false;
+  function buildBG(){
+    const C=GAME_BG[theme]||GAME_BG.night;
+    bx.clearRect(0,0,240,150);
+    const g=bx.createLinearGradient(0,0,0,150);
+    g.addColorStop(0,C[0]);g.addColorStop(0.55,C[1]);g.addColorStop(1,C[2]);
+    bx.fillStyle=g;bx.fillRect(0,0,240,150);
+    const R2=mulberry32(3);
+    if(theme!=='day'){for(let i=0;i<18;i++){bx.fillStyle='#fff';bx.globalAlpha=0.18+R2()*0.2;bx.fillRect(R2()*240|0,R2()*60|0,1,1);}bx.globalAlpha=1;}
+    [[36,26,9],[150,16,11],[205,38,7]].forEach(c=>{
+      for(let j=0;j<4;j++){bx.fillStyle=C[6];const w2=c[2]*(1-j*0.18);bx.fillRect(c[0]-w2/2,c[1]+j*3,w2,3);}});
+    bx.fillStyle=C[3];
+    let sx=0;while(sx<240){const w2=8+R2()*14,h2=16+R2()*30;bx.fillRect(sx,128-h2,w2,h2+4);sx+=w2+2;}
+    bx.fillStyle=C[4];bx.fillRect(0,128,240,22);
+    bx.fillStyle=C[5];bx.fillRect(0,126,240,2);
+  }
+  buildBG();
+  const onTheme=()=>buildBG();
+  window.addEventListener('themechange',onTheme);
+  const ducks=[];let score=0,miss=0,best=0,running=false,raf=null,spawnT=0,spawnIv=30;
+  const gs=b.querySelector('.gs'),gm2=b.querySelector('.gm2'),gb=b.querySelector('.gb');
+  function spawnDuck(){
+    const dir=Math.random()<0.5?1:-1;
+    ducks.push({x:dir>0?-18:258,y:18+Math.random()*80,vx:dir*(0.7+Math.min(1.4,score*0.04)),
+      ph:Math.random()*6,fell:false,vy:0,rot:0,fr:0});
+  }
+  function loop(){
+    if(!cv.isConnected)return;
+    cx.drawImage(bg,0,0);
+    spawnT++;
+    if(running&&spawnT>spawnIv&&ducks.filter(d=>!d.fell).length<4){spawnDuck();spawnT=0;spawnIv=40+Math.random()*70;}
+    for(let i=ducks.length-1;i>=0;i--){const d=ducks[i];
+      if(d.fell){d.vy+=0.12;d.y+=d.vy;d.rot+=0.15;if(d.y>160){ducks.splice(i,1);continue;}
+        cx.save();cx.translate(d.x+8,d.y+6);cx.rotate(d.rot);cx.drawImage(SPR.fly,-8,-6,16,11);cx.restore();continue;}
+      d.x+=d.vx;d.ph+=0.08;d.y+=Math.sin(d.ph)*0.35;d.fr=(d.fr+1)%16;
+      if(d.x<-24||d.x>264){ducks.splice(i,1);continue;}
+      cx.drawImage(d.fr<8?SPR.fly:SPR.duckB,d.x-1|0,d.y-1|0,18,13);
+    }
+    if(mouse.on){cx.fillStyle=theme==='day'?'#24304a':'#fff';
+      cx.fillRect(mouse.x-4,mouse.y,3,1);cx.fillRect(mouse.x+2,mouse.y,3,1);
+      cx.fillRect(mouse.x,mouse.y-4,1,3);cx.fillRect(mouse.x,mouse.y+2,1,3);}
+    raf=requestAnimationFrame(loop);
+  }
+  const mouse={x:0,y:0,on:false};
+  cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();
+    mouse.x=(e.clientX-r.left)/r.width*240;mouse.y=(e.clientY-r.top)/r.height*150;mouse.on=true;});
+  cv.addEventListener('mouseleave',()=>mouse.on=false);
+  cv.addEventListener('click',e=>{
+    if(!running)return;
+    const r=cv.getBoundingClientRect();
+    const mx2=(e.clientX-r.left)/r.width*240,my2=(e.clientY-r.top)/r.height*150;
+    let hit=false;
+    for(let i=ducks.length-1;i>=0;i--){const d=ducks[i];
+      if(!d.fell&&mx2>d.x-2&&mx2<d.x+18&&my2>d.y-3&&my2<d.y+12){
+        d.fell=true;d.vy=0.5;hit=true;score++;gs.textContent=score;
+        if(score>best){best=score;gb.textContent=best;}
+        const pop=document.createElement('div');pop.className='gm-pop';pop.textContent='+1';
+        pop.style.left=(mx2/240*100)+'%';pop.style.top=(my2/150*100)+'%';
+        b.querySelector('.gm-stage').appendChild(pop);setTimeout(()=>pop.remove(),700);
+        break;}}
+    if(!hit){miss++;gm2.textContent=miss;}
+  });
+  b.querySelector('.go').onclick=()=>{b.querySelector('.gm-overlay').classList.add('hidden');running=true;};
+  b.querySelector('.gr').onclick=()=>{score=0;miss=0;gs.textContent=0;gm2.textContent=0;ducks.length=0;};
+  raf=requestAnimationFrame(loop);
+  return ()=>{cancelAnimationFrame(raf);window.removeEventListener('themechange',onTheme);};
+}
+
+/* ================= github commit calendar ================= */
+let ghData={};
+let ghLive=false;
+const calCache={};
+let calY=new Date().getFullYear(), calM=new Date().getMonth();
+async function fetchGitHub(){
+  try{
+    ghData={};
+    let page=1,events=[];
+    while(page<=3){
+      const r=await fetch('https://api.github.com/users/'+CONFIG.handle+'/events/public?per_page=100&page='+page);
+      if(!r.ok)break;
+      const j=await r.json();
+      if(!Array.isArray(j)||!j.length)break;
+      events=events.concat(j); page++;
+    }
+    events.forEach(ev=>{
+      if(ev.type==='PushEvent'&&ev.created_at){
+        const d=ev.created_at.slice(0,10);
+        const n=(ev.payload&&Array.isArray(ev.payload.commits))?ev.payload.commits.length:((ev.payload&&ev.payload.size)||0);
+        if(n>0)ghData[d]=(ghData[d]||0)+n;
+      }
+    });
+    if(Object.keys(ghData).length){
+      ghLive=true;
+      Object.keys(calCache).forEach(k=>delete calCache[k]);
+      renderCal();
+    }
+  }catch(e){/* offline or rate-limited — demo pattern stays */}
+}
+function monthCommits(y,m){
+  const key=y+'-'+m;
+  if(calCache[key])return calCache[key];
+  const R=mulberry32(y*97+m*13+7);
+  const days=new Date(y,m+1,0).getDate();
+  const arr=[];
+  for(let d=1;d<=days;d++){
+    const dk=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    if(ghData[dk]!=null){arr.push(ghData[dk]);continue;}
+    const dow=new Date(y,m,d).getDay(), r=R();
+    let n;
+    if(dow===0||dow===6)n=r<0.45?0:1+Math.floor(R()*4);
+    else n=r<0.12?0:1+Math.floor(R()*R()*10);
+    arr.push(n);
+  }
+  calCache[key]=arr;return arr;
+}
+function renderCal(){
+  const now=new Date();
+  const first=new Date(calY,calM,1).getDay();
+  const arr=monthCommits(calY,calM);
+  const days=arr.length;
+  $('#calTitle').textContent=new Date(calY,calM,1).toLocaleDateString([],{month:'long',year:'numeric'});
+  let html=['S','M','T','W','T','F','S'].map(d=>'<div class="cal-dow">'+d+'</div>').join('');
+  for(let i=0;i<first;i++)html+='<div></div>';
+  let total=0;
+  const lvl=n=>n===0?'':(n<3?'l1':(n<6?'l2':(n<10?'l3':'l4')));
+  for(let d=1;d<=days;d++){
+    const n=arr[d-1];
+    const isFut=calY===now.getFullYear()&&calM===now.getMonth()&&d>now.getDate();
+    const isToday=calY===now.getFullYear()&&calM===now.getMonth()&&d===now.getDate();
+    if(!isFut)total+=n;
+    html+='<div class="cal-cell '+lvl(n)+(isFut?' fut':'')+(isToday?' today':'')+'" title="'+n+' commit'+(n===1?'':'s')+'"><i>'+d+'</i></div>';
+  }
+  $('#calGrid').innerHTML=html;
+  $('#calTotal').textContent=total+' commits · '+new Date(calY,calM,1).toLocaleDateString([],{month:'short'});
+  $('#calSrc').innerHTML=ghLive?('live · github.com/'+CONFIG.handle):'demo pattern<br>connects to github api when online';
+}
+function toggleCal(){
+  const c=$('#calPop');
+  c.classList.toggle('hidden');
+  if(!c.classList.contains('hidden')){renderCal();fetchGitHub();}
+}
+
+/* ================= secrets ================= */
+function duckStorm(){
+  if(!$('#desktop').classList.contains('ready'))return;
+  for(let i=0;i<10;i++)setTimeout(spawnWaddler,i*180);
+  setTimeout(spawnFlyer,400);setTimeout(spawnFlyer,1100);
+  toast('KONAMI ACCEPTED — DUCK STORM INCOMING');
+}
+function ducksAnswer(){
+  if(!$('#desktop').classList.contains('ready'))return;
+  const ds=document.querySelectorAll('.duckw');
+  if(!ds.length){spawnWaddler(true);toast('the ducks were summoned.');return;}
+  ds.forEach((d,i)=>setTimeout(()=>{
+    const q=document.createElement('span');q.className='quack';
+    q.textContent=['quack.','QUACK.','quack?','mrrp- wait, wrong animal.'][i%4];
+    q.style.left='8px';q.style.top='-16px';
+    d.appendChild(q);setTimeout(()=>q.remove(),900);
+  },i*90));
+  toast('the ducks answer.');
+}
+
+/* ================= desktop icons ================= */
+function buildIcons(){
+  const host=$('#icons');
+  ICON_ORDER.forEach((id,i)=>{
+    const def=APPS[id];
+    const d=document.createElement('div');d.className='icon';d.style.setProperty('--d',(i*0.07)+'s');
+    d.innerHTML='<img src="'+iconURL(def.icon)+'" alt=""><span>'+def.title+'</span>';
+    d.addEventListener('click',()=>{document.querySelectorAll('.icon').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');});
+    d.addEventListener('dblclick',()=>openApp(id));
+    const img=d.querySelector('img');
+    d.addEventListener('pointermove',e=>{
+      const r=d.getBoundingClientRect(),pxi=(e.clientX-r.left)/r.width-0.5,pyi=(e.clientY-r.top)/r.height-0.5;
+      img.style.transform='perspective(240px) rotateX('+(-pyi*14)+'deg) rotateY('+(pxi*14)+'deg) translateZ(10px) scale(1.1)';
+    });
+    d.addEventListener('pointerleave',()=>img.style.transform='');
+    host.appendChild(d);
+  });
+}
+
+/* ================= start menu ================= */
+function buildStartMenu(){
+  const descs={about:'who is behind this',resume:'open & download my resume',skills:'what i can do',
+    projects:'things i built',experience:'internships & part-time work',education:'degrees & certifications',
+    code:'a real code sandbox',game:'take a break',contact:'say hello',readme:'start here (has secrets)'};
+  const m=$('#startMenu');
+  m.innerHTML='<div class="sm-head"><img src="'+iconURL('user')+'" alt="">'
+    +'<div><b>'+CONFIG.name+'</b><small>local account</small></div></div>'
+    +'<div class="sm-list">'+Object.keys(APPS).filter(k=>!APPS[k].virus).map(k=>
+      '<div class="sm-item" data-app="'+k+'"><img src="'+iconURL(APPS[k].icon)+'" alt="">'
+      +'<div><b>'+APPS[k].title+'</b><small>'+(descs[k]||'')+'</small></div></div>').join('')+'</div>'
+    +'<div class="sm-foot"><span style="font-family:var(--mono);font-size:10.5px;color:var(--ink-faint)">UDAI OS 3.2.1</span>'
+    +'<button class="restart"><img src="'+iconURL('power')+'" alt="">restart</button></div>';
+  m.querySelectorAll('.sm-item').forEach(it=>it.onclick=()=>{openApp(it.dataset.app);m.classList.add('hidden');$('#startBtn').classList.remove('on');});
+  m.querySelector('.restart').onclick=()=>{m.classList.add('hidden');$('#startBtn').classList.remove('on');restart();};
+}
+function restart(){
+  [...wins.keys()].forEach(closeWin);
+  $('#ducklayer').innerHTML='';
+  $('#desktop').classList.add('hidden');$('#desktop').classList.remove('ready');
+  bootSequence(initLogin);
+}
+
+/* ================= ducks ================= */
+let duckTotal=0;
+function bumpDuckCount(){duckTotal++;$('#duckCount').textContent=duckTotal;}
+function spawnWaddler(fromCode){
+  if(!$('#desktop').classList.contains('ready'))return;
+  bumpDuckCount();
+  if(fromCode)toast('a duck was released via code.exe');
+  const layer=$('#ducklayer');
+  const el=document.createElement('div');el.className='duckw';
+  el.style.width=(34+Math.random()*16)+'px';
+  el.innerHTML='<img src="'+iconURL('duckA')+'" alt="">';
+  const dir=Math.random()<0.5?1:-1;
+  let x=dir>0?-50:innerWidth+50;
+  el.style.bottom=(48+Math.random()*40)+'px';el.style.top='auto';
+  const speed=(0.8+Math.random()*0.8)*dir;
+  layer.appendChild(el);
+  let step=0,dead=false;
+  const iv=setInterval(()=>{
+    if(dead||!el.isConnected){clearInterval(iv);return;}
+    x+=speed*2;step++;
+    const bob=step%12<6?-2:0;
+    el.style.transform='translateX('+x+'px) scaleX('+dir+') translateY('+bob+'px) rotate('+(step%12<6?-3:3)+'deg)';
+    el.querySelector('img').src=step%24<12?iconURL('duckA'):iconURL('duckB');
+    if((dir>0&&x>innerWidth+60)||(dir<0&&x<-70)){clearInterval(iv);el.remove();dead=true;}
+  },60);
+  el.addEventListener('pointerenter',()=>{el.style.marginBottom='8px';setTimeout(()=>el.style.marginBottom='0',300);});
+  el.addEventListener('click',()=>{
+    const q=document.createElement('span');q.className='quack';q.textContent='quack.';
+    q.style.left='10px';q.style.top='-16px';el.appendChild(q);setTimeout(()=>q.remove(),900);
+  });
+  setTimeout(()=>{if(!dead){dead=true;clearInterval(iv);el.remove();}},45000);
+}
+function spawnFlyer(){
+  if(!$('#desktop').classList.contains('ready'))return;
+  bumpDuckCount();
+  const dir=Math.random()<0.5?1:-1;
+  const el=document.createElement('div');el.className='flyduck';
+  el.style.width=(42+Math.random()*14)+'px';
+  el.innerHTML='<img src="'+iconURL('fly')+'" alt=""><img class="wing" src="'+iconURL('wingUp')+'" style="width:45%;left:6%;top:-26%" alt="">';
+  document.body.appendChild(el);
+  const y0=innerHeight*(0.12+Math.random()*0.24);
+  let x=dir>0?-70:innerWidth+70,t=0,dead=false;
+  const iv=setInterval(()=>{
+    if(dead||!el.isConnected){clearInterval(iv);if(el.isConnected)el.remove();return;}
+    x+=dir*(2.4+Math.random()*0.6);t++;
+    el.style.transform='translate('+x+'px,'+(y0+Math.sin(t*0.045)*16)+'px) scaleX('+dir+') rotate('+(dir>0?-6:6)+'deg)';
+    el.querySelector('.wing').src=t%10<5?iconURL('wingUp'):iconURL('wingDn');
+    if((dir>0&&x>innerWidth+80)||(dir<0&&x<-90)){dead=true;clearInterval(iv);el.remove();}
+  },30);
+  el.addEventListener('click',()=>{
+    if(dead)return;dead=true;clearInterval(iv);
+    const r=el.getBoundingClientRect();
+    for(let i=0;i<7;i++){
+      const f=document.createElement('div');f.className='feather';
+      f.style.background=Math.random()<0.5?'#f2cf5e':'#eccbd6';
+      f.style.left=r.left+'px';f.style.top=r.top+'px';
+      document.body.appendChild(f);
+      requestAnimationFrame(()=>{f.style.transform='translate('+((Math.random()-0.5)*130)+'px,'+(40+Math.random()*90)+'px) rotate('+(Math.random()*360)+'deg)';f.style.opacity='0';});
+      setTimeout(()=>f.remove(),900);
+    }
+    el.remove();toast('you booped the duck. it exploded into feathers.');
+  });
+  if(!document.querySelector('.win.virus')&&Math.random()<0.7)
+    setTimeout(()=>openApp('virus'),700);
+}
+function scheduleDucks(){
+  setTimeout(function w(){spawnWaddler();setTimeout(w,22000+Math.random()*28000);},6000);
+  setTimeout(function f(){spawnFlyer();setTimeout(f,38000+Math.random()*45000);},14000);
+}
+
+/* ================= desktop entry ================= */
+function enterDesktop(){
+  const d=$('#desktop');
+  d.classList.remove('hidden');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.add('ready')));
+  setTimeout(()=>{openApp('readme');},750);
+  scheduleDucks();
+  fetchGitHub();
+}
+
+/* ================= init — boot starts first, every step guarded ================= */
+bootSequence(initLogin);
+
+function step(label,fn){
+  try{fn();}
+  catch(err){
+    console.error(label,err);
+    if(window.__bootFail)window.__bootFail(label+': '+err.message);
+  }
+}
+
+step('sprites',()=>{
+  buildSprites();
+  $('#bootDuck').src=iconURL('duckA');
+  $('#trayDuck').src=iconURL('duckA');
+});
+step('wallpaper',()=>{
+  document.body.dataset.theme=theme;
+  buildWallpaper($('#loginWall'),'night',7);
+  buildWallpaper($('#wall'),theme,wallSeed);
+});
+step('theme-button',()=>{
+  $('#themeBtn').innerHTML='<img src="'+iconURL(theme==='night'?'sun':'moon')+'" alt="">';
+  $('#themeBtn').title=theme==='night'?'switch to day':'switch to night';
+});
+step('petals',buildPetals);
+step('icons',buildIcons);
+step('start-menu',buildStartMenu);
+step('clock',()=>{tickClock();setInterval(tickClock,1000);});
+step('parallax',parallaxLoop);
+step('handlers',()=>{
+  $('#themeBtn').onclick=e=>{e.stopPropagation();applyTheme(theme==='night'?'day':'night',true);};
+  $('#clock').onclick=e=>{e.stopPropagation();toggleCal();};
+  $('#calPrev').onclick=e=>{e.stopPropagation();calM--;if(calM<0){calM=11;calY--;}renderCal();};
+  $('#calNext').onclick=e=>{e.stopPropagation();calM++;if(calM>11){calM=0;calY++;}renderCal();};
+  $('#startBtn').onclick=e=>{
+    e.stopPropagation();
+    const m=$('#startMenu');m.classList.toggle('hidden');
+    $('#startBtn').classList.toggle('on',!m.classList.contains('hidden'));
+  };
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('#startMenu')&&!e.target.closest('#startBtn')){
+      $('#startMenu').classList.add('hidden');$('#startBtn').classList.remove('on');
+    }
+    if(!e.target.closest('#calPop')&&!e.target.closest('#clock')){
+      $('#calPop').classList.add('hidden');
+    }
+  });
+  /* secret: double-click wallpaper = regenerate the city */
+  $('#desktop').addEventListener('dblclick',e=>{
+    if(e.target.closest('.icon')||e.target.closest('.win')||e.target.closest('#taskbar')
+      ||e.target.closest('#startMenu')||e.target.closest('#calPop'))return;
+    wallSeed=(Math.random()*1000000000)|0;
+    buildWallpaper($('#wall'),theme,wallSeed);
+    toast('new city generated — seed #'+wallSeed);
+  });
+  /* secrets: konami code, "quack", ctrl+alt+d */
+  const KONAMI=['arrowup','arrowup','arrowdown','arrowdown','arrowleft','arrowright','arrowleft','arrowright','b','a'];
+  let kbuf=[],qbuf='';
+  document.addEventListener('keydown',e=>{
+    const tag=(e.target.tagName||'').toLowerCase();
+    const typing=tag==='input'||tag==='textarea'||e.target.isContentEditable;
+    if(e.ctrlKey&&e.altKey&&(e.key==='d'||e.key==='D')){e.preventDefault();openApp('virus');return;}
+    if(e.key==='Escape'){
+      $('#startMenu').classList.add('hidden');$('#startBtn').classList.remove('on');
+      $('#calPop').classList.add('hidden');
+    }
+    if(typing)return;
+    kbuf.push(e.key.toLowerCase());if(kbuf.length>10)kbuf.shift();
+    if(kbuf.join(',')===KONAMI.join(',')){kbuf=[];duckStorm();}
+    if(e.key.length===1){
+      qbuf=(qbuf+e.key.toLowerCase()).slice(-5);
+      if(qbuf==='quack'){qbuf='';ducksAnswer();}
+    }
+  });
+  window.spawnDuck=function(n){n=n||1;for(let i=0;i<n;i++)spawnWaddler(true);};
+  window.openApp=openApp;
+});
+
+window.__udai_ok=true;
+</script>
+</body>
+</html>
