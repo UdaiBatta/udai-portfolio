@@ -1202,12 +1202,12 @@ function renderSkills(b){
   }));
 }
 const PROJECTS=[
- {id:'ArchiAI',yr:'2026 · ai/backend · django rest',desc:"Bylaw-compliant architectural design platform. A Django REST backend that parses natural-language project requirements into deterministic, explainable design sessions. A vectorless RAG retriever grounds answers in bylaw & architecture knowledge — chosen over embedding similarity for this compliance-sensitive domain. Iteratively engineered Ollama prompts for structured JSON output; async job system for Hypar export; 15+ endpoints secured with auth & RBAC; ~30% faster API responses via query optimization and CI/CD.",stack:['Django REST Framework','Ollama','RAG','Docker']},
- {id:'binance_bot',yr:'2026 · algo-trading · fastapi',desc:"Co-developed a full-stack algorithmic trading system for Binance Futures — multi-timeframe signal engine (RSI, MACD, Bollinger Bands, Supertrend, ADX), Kelly Criterion sizing and a 5-rule risk manager. A news engine scores NLP sentiment across 15+ RSS feeds in real time; 9-tab dashboard with Telegram alerts and a SQLite journal that auto-extracts trade lessons.",stack:['FastAPI','WebSockets','SQLite','Docker']},
- {id:'Lender Lens',yr:'2025 · fintech · analytics',desc:"A lending analytics platform that turns raw loan-book data into decisions — applicant credit scoring through an ML pipeline, repayment-health tracking, and portfolio-risk views so lenders can see exposure at a glance.",stack:['Django','DRF','scikit-learn','PostgreSQL']},
- {id:'Monika ERP',yr:'2024 – present · erp · in production',desc:"A lightweight ERP built for Monika Engineers — unifies the CRM, attendance and inventory modules the business runs on daily. Owned end-to-end: requirements with ownership, data model, modules, deployment, and the ongoing changes real usage demands.",stack:['Python','React','SQLite','Supabase']},
- {id:'SkyLearn',yr:'2025 · full-stack · lms',desc:"A Django learning management system with 4 user roles, automated grade/GPA calculation and 5 integrated payment gateways (Stripe, PayPal, Coinbase, Paylike, GoPay), with ReportLab-powered report generation.",stack:['Django','Bootstrap 5','ReportLab']},
- {id:'lofi.desktop',yr:'2025 · web · this site',desc:"The desktop you're looking at. A hand-built pixel OS in a single HTML file — a window manager, draggable apps, a working code sandbox, and a recurring duck epidemic.",stack:['HTML','CSS','JavaScript','SVG','canvas']},
+ {id:'ArchiAI',yr:'2026 · ai/backend · django rest',desc:"Bylaw-compliant architectural design platform. A Django REST backend that parses natural-language project requirements into deterministic, explainable design sessions. A vectorless RAG retriever grounds answers in bylaw & architecture knowledge — chosen over embedding similarity for this compliance-sensitive domain. Iteratively engineered Ollama prompts for structured JSON output; async job system for Hypar export; 15+ endpoints secured with auth & RBAC; ~30% faster API responses via query optimization and CI/CD.",stack:['Django REST Framework','Ollama','RAG','Docker'],source:'https://github.com/samarth080/archiai-saas'},
+ {id:'binance_bot',yr:'2026 · algo-trading · fastapi',desc:"Co-developed a full-stack algorithmic trading system for Binance Futures — multi-timeframe signal engine (RSI, MACD, Bollinger Bands, Supertrend, ADX), Kelly Criterion sizing and a 5-rule risk manager. A news engine scores NLP sentiment across 15+ RSS feeds in real time; 9-tab dashboard with Telegram alerts and a SQLite journal that auto-extracts trade lessons.",stack:['FastAPI','WebSockets','SQLite','Docker'],source:'https://github.com/samarth080/the-ultimate-binance-trading-bot'},
+ {id:'Lender Lens',yr:'2025 · fintech · analytics',desc:"A lending analytics platform that turns raw loan-book data into decisions — applicant credit scoring through an ML pipeline, repayment-health tracking, and portfolio-risk views so lenders can see exposure at a glance.",stack:['Django','DRF','scikit-learn','PostgreSQL'],source:'https://github.com/UdaiBatta/LedgerLens'},
+ {id:'Monika ERP',yr:'2024 – present · erp · in production',desc:"A lightweight ERP built for Monika Engineers — unifies the CRM, attendance and inventory modules the business runs on daily. Owned end-to-end: requirements with ownership, data model, modules, deployment, and the ongoing changes real usage demands.",stack:['Python','React','SQLite','Supabase'],source:'https://github.com/UdaiBatta/monika-eng-CRM'},
+ {id:'SkyLearn',yr:'2025 · full-stack · lms',desc:"A Django learning management system with 4 user roles, automated grade/GPA calculation and 5 integrated payment gateways (Stripe, PayPal, Coinbase, Paylike, GoPay), with ReportLab-powered report generation.",stack:['Django','Bootstrap 5','ReportLab'],source:'https://github.com/UdaiBatta/LMS'},
+ {id:'lofi.desktop',yr:'2025 · web · this site',desc:"The desktop you're looking at. A hand-built pixel OS in a single HTML file — a window manager, draggable apps, a working code sandbox, and a recurring duck epidemic.",stack:['HTML','CSS','JavaScript','SVG','canvas'],source:'https://github.com/UdaiBatta/udai-portfolio'},
 ];
 function renderProjects(b){
   b.innerHTML='<div class="pj"><div class="pj-list">'
@@ -1219,7 +1219,7 @@ function renderProjects(b){
     det.innerHTML='<h4>'+p.id+'</h4><div class="yr">'+p.yr+'</div><p>'+p.desc+'</p>'
       +'<div>'+p.stack.map(s=>'<span class="chip">'+s+'</span>').join('')+'</div>'
       +'<hr class="hr"><div style="display:flex;gap:10px">'
-      +'<a class="btn gold" href="'+CONFIG.github+'" target="_blank" rel="noopener" style="text-decoration:none">source</a></div>';
+      +'<a class="btn gold" href="'+p.source+'" target="_blank" rel="noopener" style="text-decoration:none">source</a></div>';
   }
   b.querySelectorAll('.pj-item').forEach(it=>{
     it.onclick=()=>{b.querySelectorAll('.pj-item').forEach(x=>x.classList.remove('on'));it.classList.add('on');show(+it.dataset.i);};
@@ -1354,27 +1354,12 @@ function printResume(){
   window.addEventListener('afterprint',done,{once:true});
   setTimeout(()=>{window.print();setTimeout(done,900);},80);
 }
-async function downloadResume(){
-  try{
-    const r=await fetch(CONFIG.resumeURL,{cache:'no-store'});
-    if(r.ok){
-      const blob=await r.blob(),u=URL.createObjectURL(blob);
-      const a=document.createElement('a');a.href=u;a.download='Udai_Batta_Resume.pdf';
-      document.body.appendChild(a);a.click();a.remove();
-      setTimeout(()=>URL.revokeObjectURL(u),4000);
-      toast('resume.pdf — downloading.');return;
-    }
-  }catch(e){}
-  toast('no resume.pdf beside this file — opening print dialog: choose "Save as PDF".');
-  setTimeout(printResume,750);
-}
 function renderResume(b){
   b.innerHTML='<div class="rs-bar">'
-    +'<button class="btn gold" id="rsDl">download pdf</button>'
+    +'<a class="btn gold" href="'+CONFIG.resumeURL+'" download="Udai_Batta_Full_Stack_Software_Engineer_Resume.pdf">download pdf</a>'
     +'<button class="btn" id="rsPr">print</button>'
-    +'<span class="rs-tip">tip: place a real resume.pdf next to this html file and the download button grabs it directly — otherwise it opens the print dialog (choose "Save as PDF").</span>'
+    +'<span class="rs-tip">The full resume PDF is ready to download. To create another copy, click print and choose "Save as PDF".</span>'
     +'</div><div class="rs-doc">'+resumeMarkup()+'</div>';
-  b.querySelector('#rsDl').onclick=downloadResume;
   b.querySelector('#rsPr').onclick=printResume;
 }
 
