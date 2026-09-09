@@ -314,37 +314,10 @@ body[data-theme="day"] .win.focus{box-shadow:0 22px 55px rgba(90,80,50,.3),0 0 0
 .facts b{font-family:var(--mono);font-weight:400;font-size:12.5px;color:var(--ink)}
 
 /* resume */
+.resume-body{display:flex;flex-direction:column;overflow:hidden}
 .rs-bar{display:flex;align-items:center;gap:10px;padding-bottom:13px;margin-bottom:15px;border-bottom:1px solid var(--line-soft);flex-wrap:wrap}
 .rs-tip{font-family:var(--mono);font-size:10px;color:var(--ink-faint);line-height:1.5;flex:1;min-width:180px}
-.rs-doc h1{font-family:var(--pixel);font-weight:600;font-size:24px;letter-spacing:1px}
-.rs-doc .rs-sub{font-family:var(--mono);font-size:11px;color:var(--ink-dim);margin-top:4px}
-.rs-doc .rs-role{font-family:var(--mono);font-size:11px;color:var(--gold);margin:3px 0 6px}
-.rs-doc h2{font-family:var(--pixel);font-size:13px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--line-soft);padding-bottom:4px;margin:16px 0 8px}
-.rs-doc h3{font-family:var(--mono);font-size:13px;color:var(--ink);margin:10px 0 1px}
-.rs-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
-.rs-doc .rs-meta{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);white-space:nowrap}
-.rs-doc .rs-it{font-family:var(--mono);font-size:10.5px;color:var(--blue);font-style:italic;margin-bottom:4px}
-.rs-doc p{font-size:13px;color:var(--ink-dim);line-height:1.65}
-.rs-doc ul{margin:4px 0 10px 16px}
-.rs-doc li{font-size:12.5px;color:var(--ink-dim);line-height:1.6;margin-bottom:3px}
-.rs-doc b{color:var(--ink);font-weight:600}
-.rs-doc p+p{margin-top:6px}
-
-#printRoot{display:none}
-@media print{
-  body.printing{background:#fff}
-  body.printing > :not(#printRoot){display:none!important}
-  body.printing #printRoot{display:block!important;color:#1c1c24;font-family:Georgia,'Times New Roman',serif}
-  #printRoot h1{font-size:24px;margin:0 0 2px;letter-spacing:.5px}
-  #printRoot .rs-sub{font-size:10.5px;color:#444}
-  #printRoot .rs-role{font-size:10.5px;color:#444;font-style:italic;margin-bottom:4px}
-  #printRoot h2{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;border-bottom:1px solid #999;padding-bottom:2px;margin:13px 0 6px}
-  #printRoot h3{font-size:12px;margin:8px 0 1px}
-  #printRoot .rs-it{font-size:10.5px;color:#555;font-style:italic;margin-bottom:3px}
-  #printRoot .rs-meta{font-size:10px;color:#555}
-  #printRoot p,#printRoot li{font-size:10.8px;line-height:1.5;color:#222}
-  #printRoot ul{margin:2px 0 7px 16px}
-}
+.rs-pdf{width:100%;min-height:0;flex:1;border:0;border-radius:5px;background:#fff}
 
 /* editor */
 .ed{height:100%;display:flex;flex-direction:column;font-family:var(--mono);font-size:13px}
@@ -439,7 +412,6 @@ body[data-theme="day"] .win.focus{box-shadow:0 22px 55px rgba(90,80,50,.3),0 0 0
 </div>
 
 <div id="toasts"></div>
-<div id="printRoot"></div>
 
 <!-- ======== sandbox files ======== -->
 <script type="text/plain" id="file-portfolio">
@@ -1204,10 +1176,10 @@ function renderSkills(b){
 const PROJECTS=[
  {id:'ArchiAI',yr:'2026 · ai/backend · django rest',desc:"Bylaw-compliant architectural design platform. A Django REST backend that parses natural-language project requirements into deterministic, explainable design sessions. A vectorless RAG retriever grounds answers in bylaw & architecture knowledge — chosen over embedding similarity for this compliance-sensitive domain. Iteratively engineered Ollama prompts for structured JSON output; async job system for Hypar export; 15+ endpoints secured with auth & RBAC; ~30% faster API responses via query optimization and CI/CD.",stack:['Django REST Framework','Ollama','RAG','Docker'],source:'https://github.com/samarth080/archiai-saas'},
  {id:'binance_bot',yr:'2026 · algo-trading · fastapi',desc:"Co-developed a full-stack algorithmic trading system for Binance Futures — multi-timeframe signal engine (RSI, MACD, Bollinger Bands, Supertrend, ADX), Kelly Criterion sizing and a 5-rule risk manager. A news engine scores NLP sentiment across 15+ RSS feeds in real time; 9-tab dashboard with Telegram alerts and a SQLite journal that auto-extracts trade lessons.",stack:['FastAPI','WebSockets','SQLite','Docker'],source:'https://github.com/samarth080/the-ultimate-binance-trading-bot'},
- {id:'Lender Lens',yr:'2025 · fintech · analytics',desc:"A lending analytics platform that turns raw loan-book data into decisions — applicant credit scoring through an ML pipeline, repayment-health tracking, and portfolio-risk views so lenders can see exposure at a glance.",stack:['Django','DRF','scikit-learn','PostgreSQL'],source:'https://github.com/UdaiBatta/LedgerLens'},
- {id:'Monika ERP',yr:'2024 – present · erp · in production',desc:"A lightweight ERP built for Monika Engineers — unifies the CRM, attendance and inventory modules the business runs on daily. Owned end-to-end: requirements with ownership, data model, modules, deployment, and the ongoing changes real usage demands.",stack:['Python','React','SQLite','Supabase'],source:'https://github.com/UdaiBatta/monika-eng-CRM'},
+ {id:'Lender Lens',yr:'2026 · fintech · analytics',desc:"A lending analytics platform that turns raw loan-book data into decisions — applicant credit scoring through an ML pipeline, repayment-health tracking, and portfolio-risk views so lenders can see exposure at a glance.",stack:['Django','DRF','scikit-learn','PostgreSQL'],source:'https://github.com/UdaiBatta/LedgerLens'},
+ {id:'Monika ERP',yr:'2025 · erp · in production',desc:"A lightweight ERP built for Monika Engineers — unifies the CRM, attendance and inventory modules the business runs on daily. Owned end-to-end: requirements with ownership, data model, modules, deployment, and the ongoing changes real usage demands.",stack:['Python','React','SQLite','Supabase'],source:'https://github.com/UdaiBatta/monika-eng-CRM'},
  {id:'SkyLearn',yr:'2025 · full-stack · lms',desc:"A Django learning management system with 4 user roles, automated grade/GPA calculation and 5 integrated payment gateways (Stripe, PayPal, Coinbase, Paylike, GoPay), with ReportLab-powered report generation.",stack:['Django','Bootstrap 5','ReportLab'],source:'https://github.com/UdaiBatta/LMS'},
- {id:'lofi.desktop',yr:'2025 · web · this site',desc:"The desktop you're looking at. A hand-built pixel OS in a single HTML file — a window manager, draggable apps, a working code sandbox, and a recurring duck epidemic.",stack:['HTML','CSS','JavaScript','SVG','canvas'],source:'https://github.com/UdaiBatta/udai-portfolio'},
+ {id:'lofi.desktop',yr:'2026 · web · this site',desc:"The desktop you're looking at. A hand-built pixel OS in a single HTML file — a window manager, draggable apps, a working code sandbox, and a recurring duck epidemic.",stack:['HTML','CSS','JavaScript','SVG','canvas'],source:'https://github.com/UdaiBatta/udai-portfolio'},
 ];
 function renderProjects(b){
   b.innerHTML='<div class="pj"><div class="pj-list">'
@@ -1299,68 +1271,13 @@ function renderVirus(b){
 }
 
 /* ---------- resume ---------- */
-function resumeMarkup(){
-  return '<h1>Udai Batta</h1>'
-  +'<div class="rs-sub">'+CONFIG.phone+' · '+CONFIG.email+' · linkedin.com/in/udai-batta · github.com/UdaiBatta</div>'
-  +'<div class="rs-role">Software Engineer — Backend · Full-Stack · Applied AI/RAG</div>'
-  +'<h2>Summary</h2>'
-  +'<p>Final-year B.E. student with hands-on experience building RAG-based and NLP-driven systems in production-style Django/FastAPI backends, alongside a computer-vision model shipped during a software engineering internship at Shunya AgriTech. Practiced in iterative prompt engineering — for LLM-driven application features (Ollama) and AI-assisted development (Claude). Strong CS fundamentals, backend-first, growing into agentic AI.</p>'
-  +'<h2>Education</h2>'
-  +'<div class="rs-row"><h3>Thapar Institute of Engineering and Technology — B.E.</h3><span class="rs-meta">Aug 2024 – May 2027</span></div>'
-  +'<div class="rs-it">Patiala, Punjab</div>'
-  +'<div class="rs-row"><h3>Thapar Polytechnic College — Diploma in Computer Science</h3><span class="rs-meta">Aug 2021 – Aug 2024</span></div>'
-  +'<div class="rs-it">Patiala, Punjab</div>'
-  +'<h2>Experience</h2>'
-  +'<div class="rs-row"><h3>Software Engineering Intern — Shunya AgriTech</h3><span class="rs-meta">Jun 2026 – Aug 2026</span></div>'
-  +'<div class="rs-it">Gurgaon, India — Remote</div>'
-  +'<ul><li>Built a Django dashboard giving the operations team live visibility into plant-production stage status and QC metrics, reverse-engineering an unfamiliar <b>24-table MySQL schema</b> into clean Django models.</li>'
-  +'<li>Built an image-based fodder-grading ML model on a <b>1,320-image</b> dataset — <b>79%</b> accuracy on fodder detection, <b>100%</b> on non-fodder — plus an API automation testing platform for the dashboard\'s service layer.</li></ul>'
-  +'<div class="rs-row"><h3>Software Developer — Monika Engineers (family business, part-time)</h3><span class="rs-meta">2023 – Present</span></div>'
-  +'<div class="rs-it">Ludhiana, Punjab</div>'
-  +'<ul><li>Built and deployed a CRM (Python, IMAP, SQLite), a live company website (React) and an attendance app (React Native, Supabase).</li>'
-  +'<li>Acted as business analyst — gathering requirements and owning scope end-to-end.</li></ul>'
-  +'<h2>Projects</h2>'
-  +'<div class="rs-row"><h3>ArchiAI — Bylaw-Compliant Architectural Design Platform</h3><span class="rs-meta">Apr 2026 – Present</span></div>'
-  +'<div class="rs-it">Django REST Framework · Ollama · RAG · Docker</div>'
-  +'<ul><li>Django REST backend for deterministic, bylaw-compliant layout generation; parses natural-language requirements into structured, explainable design sessions.</li>'
-  +'<li>Designed a <b>vectorless RAG retriever</b> for bylaw grounding — deterministic, explainable retrieval over embedding similarity for a compliance-sensitive domain; async job system for Hypar export.</li>'
-  +'<li>Iterative Ollama prompt engineering for structured JSON; <b>15+</b> REST endpoints secured with auth &amp; RBAC; <b>~30%</b> faster API responses via query optimization and CI/CD.</li></ul>'
-  +'<div class="rs-row"><h3>Binance Futures Trading Bot</h3><span class="rs-meta">Apr 2026</span></div>'
-  +'<div class="rs-it">FastAPI · WebSockets · SQLite · Docker</div>'
-  +'<ul><li>Co-developed a full-stack algo-trading system — multi-timeframe signal engine (RSI, MACD, Bollinger, Supertrend, ADX), Kelly Criterion sizing, 5-rule risk manager.</li>'
-  +'<li>NLP sentiment across <b>15+</b> RSS feeds in real time; 9-tab dashboard, Telegram alerts, SQLite journal that auto-extracts trade lessons.</li></ul>'
-  +'<div class="rs-row"><h3>Lender Lens — Lending Analytics Platform</h3><span class="rs-meta">2025</span></div>'
-  +'<div class="rs-it">Django · DRF · scikit-learn · PostgreSQL</div>'
-  +'<ul><li>Credit scoring through an ML pipeline, repayment-health tracking and portfolio-risk views — turning raw loan-book data into clear lending decisions.</li></ul>'
-  +'<div class="rs-row"><h3>Monika ERP — In-House ERP</h3><span class="rs-meta">2024 – Present</span></div>'
-  +'<div class="rs-it">Python · React · SQLite · Supabase</div>'
-  +'<ul><li>Lightweight ERP for Monika Engineers unifying CRM, attendance and inventory; owned end-to-end from requirements to deployment.</li></ul>'
-  +'<div class="rs-row"><h3>SkyLearn — Django Learning Management System</h3><span class="rs-meta">Oct 2025</span></div>'
-  +'<div class="rs-it">Django · Bootstrap 5 · ReportLab</div>'
-  +'<ul><li>Django LMS with <b>4 user roles</b>, automated grade/GPA calculation, <b>5</b> payment gateways (Stripe, PayPal, Coinbase, Paylike, GoPay).</li></ul>'
-  +'<h2>Skills</h2>'
-  +'<p><b>AI &amp; LLM:</b> RAG (vectorless retrieval), Ollama, prompt engineering for structured outputs, AI-assisted development (Claude), NLP sentiment, PyTorch, scikit-learn</p>'
-  +'<p><b>Languages &amp; Core:</b> Python, C++, SQL, JavaScript, HTML/CSS; DSA, OOP, SDLC, System Design</p>'
-  +'<p><b>Backend &amp; Systems:</b> Django, DRF, FastAPI, REST APIs, Async Processing, WebSockets, Authentication, RBAC</p>'
-  +'<p><b>Frontend &amp; Mobile:</b> React, React Native, Bootstrap 5</p>'
-  +'<p><b>Databases, Cloud &amp; Infra:</b> PostgreSQL, MySQL, SQLite, MongoDB, Redis, Docker, AWS, CI/CD, Git</p>'
-  +'<p><b>Certifications:</b> AWS Academy Graduate — Microservices &amp; CI/CD, Cloud Foundations</p>';
-}
-function printResume(){
-  const root=$('#printRoot');
-  if(!root.innerHTML.trim())root.innerHTML=resumeMarkup();
-  document.body.classList.add('printing');
-  const done=()=>document.body.classList.remove('printing');
-  window.addEventListener('afterprint',done,{once:true});
-  setTimeout(()=>{window.print();setTimeout(done,900);},80);
-}
 function renderResume(b){
+  b.classList.add('resume-body');
   b.innerHTML='<div class="rs-bar">'
     +'<a class="btn gold" href="'+CONFIG.resumeURL+'" download="Udai_Batta_Full_Stack_Software_Engineer_Resume.pdf">download pdf</a>'
-    +'<button class="btn" id="rsPr">print</button>'
-    +'<span class="rs-tip">The full resume PDF is ready to download. To create another copy, click print and choose "Save as PDF".</span>'
-    +'</div><div class="rs-doc">'+resumeMarkup()+'</div>';
-  b.querySelector('#rsPr').onclick=printResume;
+    +'<a class="btn" id="rsPr" href="'+CONFIG.resumeURL+'" target="_blank" rel="noopener">print</a>'
+    +'<span class="rs-tip">This is the actual resume PDF. Print opens it in the browser PDF viewer; choose Print or "Save as PDF" there.</span>'
+    +'</div><iframe class="rs-pdf" src="'+CONFIG.resumeURL+'#view=FitH" title="Udai Batta resume PDF"></iframe>';
 }
 
 /* ---------- code editor ---------- */
