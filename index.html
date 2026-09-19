@@ -3,7 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Udai Batta — desktop</title>
+<title>Udai Batta — Full Stack Software Engineer</title>
+<meta name="description" content="Udai Batta — Full Stack Software Engineer (React, Python, APIs &amp; Databases). Final-year B.E. at Thapar Institute. Projects: ArchiAI, LedgerLens, Monika ERP. Portfolio built as a tiny pixel OS.">
+<link rel="canonical" href="https://udaibatta.github.io/udai-portfolio/">
+<meta property="og:url" content="https://udaibatta.github.io/udai-portfolio/">
+<meta name="theme-color" content="#10141f">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Udai Batta — Full Stack Software Engineer">
+<meta property="og:description" content="Final-year B.E. at Thapar Institute. ArchiAI (Django REST + vectorless RAG), LedgerLens (evidence-first reconciliation), Monika ERP. Open for SDE internships.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Udai Batta — Full Stack Software Engineer">
+<meta name="twitter:description" content="Final-year B.E. at Thapar Institute. ArchiAI (Django REST + vectorless RAG), LedgerLens (evidence-first reconciliation), Monika ERP. Open for SDE internships.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 12'%3E%3Cpath fill='%23f2cf5e' d='M10 0h3v4h-3zM9 3h5v3H9zM2 6h10v4H2zM1 6h1v2H1z'/%3E%3Cpath fill='%232a2431' d='M11 1h1v1h-1z'/%3E%3C/svg%3E">
+<noscript><style>#boot,#login,#desktop{display:none!important}html,body{overflow:auto!important;height:auto!important}body{padding:32px 20px;max-width:680px;margin:0 auto;line-height:1.6}a{color:#f0c76a}</style></noscript>
 <script>
 /* ===== error trap: any crash is printed on the boot screen, never silent ===== */
 (function(){
@@ -64,6 +76,9 @@ button{font-family:inherit}
 .boot-bar{width:340px;height:12px;border:1px solid #2a3150;padding:2px}
 .boot-bar i{display:block;height:100%;width:0;background:#f0c76a;transition:width .9s ease}
 .boot-skip{font-family:var(--pixel);font-size:11px;color:#4c5478;letter-spacing:1px}
+.boot-fast{font-family:var(--mono);font-size:12px;color:#8189ad}
+.boot-fast a{color:#f0c76a;text-decoration:none;border-bottom:1px dotted #f0c76a}
+.boot-fast a:hover{color:#fff}
 
 /* ============ LOGIN ============ */
 #login{position:fixed;inset:0;z-index:8500;overflow:hidden;transition:opacity .5s}
@@ -364,12 +379,27 @@ body[data-theme="day"] .win.focus{box-shadow:0 22px 55px rgba(90,80,50,.3),0 0 0
 </head>
 <body>
 
+<noscript>
+  <h1>Udai Batta</h1>
+  <p>Full Stack Software Engineer — React, Python, APIs &amp; Databases. B.E. Computer Science, Thapar Institute (2027). Open for SDE internships.</p>
+  <p><a href="resume.pdf">Resume (PDF)</a> · <a href="https://github.com/UdaiBatta">GitHub</a> · <a href="https://linkedin.com/in/udai-batta">LinkedIn</a> · <a href="mailto:udbatta@gmail.com">udbatta@gmail.com</a></p>
+  <h2>Projects</h2>
+  <ul>
+    <li><a href="https://github.com/UdaiBatta/ArchiAI">ArchiAI</a> — bylaw-compliant architectural design platform; Django REST + vectorless RAG.</li>
+    <li><a href="https://github.com/samarth080/the-ultimate-binance-trading-bot">Binance Futures Bot</a> — algorithmic trading system for Binance Futures (FastAPI).</li>
+    <li><a href="https://github.com/UdaiBatta/LedgerLens">LedgerLens</a> — evidence-first financial reconciliation (Django REST, React, TypeScript).</li>
+    <li><a href="https://github.com/UdaiBatta/monika-eng-CRM">Monika ERP</a> — ERP/CRM for Monika Engineers: inquiries to quotations to workshop handoff (Django, React).</li>
+  </ul>
+  <p>This site is an interactive pixel desktop and needs JavaScript; this is the plain version.</p>
+</noscript>
+
 <!-- ======== BOOT ======== -->
 <div id="boot">
   <img id="bootDuck" alt="">
   <div class="boot-title">UDAI OS</div>
   <pre id="bootLog"></pre>
   <div class="boot-bar"><i id="bootFill"></i></div>
+  <div class="boot-fast">in a hurry? skip straight to: <a href="#resume">resume</a> · <a href="#projects">projects</a> · <a href="#contact">contact</a></div>
   <div class="boot-skip">click anywhere to skip</div>
 </div>
 
@@ -418,9 +448,9 @@ body[data-theme="day"] .win.focus{box-shadow:0 22px 55px rgba(90,80,50,.3),0 0 0
 // portfolio.js — udai's brain, indexed
 const engineer = {
   name: "Udai Batta",
-  role: "Backend · Full-Stack · Applied AI/RAG",
+  role: "Full Stack Software Engineer",
   school: "Thapar Institute, Patiala",
-  building: ["ArchiAI (RAG + Django)", "Lender Lens", "this desktop"],
+  building: ["ArchiAI (RAG + Django)", "LedgerLens", "Monika ERP", "this desktop"],
   learning: ["agentic AI", "system design"],
 };
 
@@ -451,13 +481,17 @@ console.log("two ducks released. sorry.");
 const CONFIG = {
   name: "Udai Batta",
   handle: "UdaiBatta",
-  role: "Software Engineer — Backend · Full-Stack · Applied AI/RAG",
+  role: "Full Stack Software Engineer — React, Python, APIs & Databases",
   tagline: "B.E. CSE · Thapar Institute · '27",
   email: "udbatta@gmail.com",
   phone: "+91 7888752150",
   github: "https://github.com/UdaiBatta",
   linkedin: "https://linkedin.com/in/udai-batta",
   resumeURL: "resume.pdf",
+  /* Paste a Formspree endpoint (https://formspree.io/f/xxxxxxx) here to get
+     contact-form messages by email; it accepts the JSON {name,email,message}.
+     Empty = the form opens the visitor's mail app with the message pre-filled. */
+  formEndpoint: "",
 };
 
 /* ================= utils ================= */
@@ -936,9 +970,20 @@ function applyTheme(mode,animate){
 }
 
 /* ================= boot & login ================= */
+function hashApp(){
+  const h=location.hash.slice(1).toLowerCase();
+  return (APPS[h]&&!APPS[h].virus)?h:null;
+}
+let FAST=false; /* true = arrived via a deep link / shortcut: skip boot + login */
 function bootSequence(done){
   const boot=$('#boot'),log=$('#bootLog'),fill=$('#bootFill');
+  /* setTimeout: let the rest of the script (sprites, icons, handlers) finish first */
+  if(FAST){boot.classList.add('hidden');setTimeout(done,0);return;}
   boot.classList.remove('hidden');boot.style.opacity=1;
+  /* shortcut links: set the hash, then let the boot's own click-to-skip run */
+  boot.querySelectorAll('.boot-fast a').forEach(a=>a.addEventListener('click',e=>{
+    e.preventDefault();FAST=true;history.replaceState(null,'',a.getAttribute('href'));
+  }));
   log.style.color='#9bd0ba';
   log.textContent='';fill.style.width='0';
   const lines=[
@@ -962,6 +1007,7 @@ function bootSequence(done){
 }
 function initLogin(){
   const login=$('#login');
+  if(FAST){login.classList.add('hidden');enterDesktop();return;}
   login.classList.remove('hidden');login.style.opacity=1;
   $('#loginName').textContent=CONFIG.name;
   $('#avatarImg').src=iconURL('user');
@@ -1066,6 +1112,7 @@ function focusWin(id){
   rec.el.classList.add('focus');
   rec.el.style.zIndex=rec.el.classList.contains('virus')?4000:(++zTop);
   wins.forEach((w,k)=>{if(w.task)w.task.classList.toggle('active',k===id&&!w.min);});
+  if(!APPS[id].virus&&location.hash!=='#'+id)history.replaceState(null,'','#'+id);
 }
 function minimizeWin(id){
   const rec=wins.get(id);if(!rec||rec.min)return;
@@ -1102,6 +1149,7 @@ function closeWin(id){
   setTimeout(()=>rec.el.remove(),230);
   if(rec.task)rec.task.remove();
   wins.delete(id);
+  if(location.hash==='#'+id)history.replaceState(null,'',location.pathname+location.search);
 }
 function makeDraggable(el,handle,rec){
   handle.addEventListener('pointerdown',e=>{
@@ -1124,14 +1172,14 @@ function renderAbout(b){
   b.innerHTML='<div class="about">'
     +'<div class="ab-head"><img src="'+iconURL('user')+'" alt="">'
     +'<div><b>'+CONFIG.name+'</b><span>'+CONFIG.role+'</span></div></div>'
-    +'<p>Final-year B.E. computer science student at Thapar Institute, Patiala. I build '
-    +'backend-first systems — RAG pipelines, NLP-driven services, Django &amp; FastAPI APIs — '
-    +'and I like software that feels calm and obvious on the surface. Interned at Shunya AgriTech '
+    +'<p>Final-year B.E. student at Thapar Institute, Patiala. I build '
+    +'full-stack applications — React and TypeScript front ends, Django/DRF and FastAPI services, '
+    +'RAG pipelines — and I like software that feels calm and obvious on the surface. Interned at Shunya AgriTech '
     +'shipping a production dashboard and a computer-vision grading model, and I run software '
     +'for my family\'s business end-to-end. Currently growing into agentic AI.</p>'
     +'<hr class="hr"><div class="h3">quick facts</div>'
     +'<div class="facts">'
-    +'<div><small>FOCUS</small><b>backend &amp; applied AI/RAG</b></div>'
+    +'<div><small>FOCUS</small><b>full-stack, APIs &amp; databases</b></div>'
     +'<div><small>LEARNING</small><b>agentic AI, system design</b></div>'
     +'<div><small>BASE</small><b>Patiala, Punjab, India</b></div>'
     +'<div><small>STATUS</small><b>open for SDE internships</b></div>'
@@ -1155,8 +1203,10 @@ function renderSkills(b){
     {g:'ai & llm',c:'sage',items:[['RAG (vectorless)',8],['Prompt engineering',9],['scikit-learn',7],['PyTorch',6]]},
   ];
   const chips=[
-    ['frontend & mobile',['React','React Native','Bootstrap 5']],
+    ['frontend & mobile',['React','React Native','TypeScript','Bootstrap 5']],
     ['databases & infra',['PostgreSQL','MySQL','SQLite','MongoDB','Redis','Docker','AWS','CI/CD','Git']],
+    ['frameworks',['Django','DRF','FastAPI','Flask','WebSockets']],
+    ['testing & reliability',['Pytest','API / integration testing','regression validation','structured logging']],
     ['core cs',['DSA','OOP','SDLC','System Design']],
     ['ways of working',['Agile/Scrum','Jira','Notion','GitHub Projects','AI-assisted dev (Claude)']],
   ];
@@ -1174,11 +1224,10 @@ function renderSkills(b){
   }));
 }
 const PROJECTS=[
- {id:'ArchiAI',yr:'2026 · ai/backend · django rest',desc:"Bylaw-compliant architectural design platform. A Django REST backend that parses natural-language project requirements into deterministic, explainable design sessions. A vectorless RAG retriever grounds answers in bylaw & architecture knowledge — chosen over embedding similarity for this compliance-sensitive domain. Iteratively engineered Ollama prompts for structured JSON output; async job system for Hypar export; 15+ endpoints secured with auth & RBAC; ~30% faster API responses via query optimization and CI/CD.",stack:['Django REST Framework','Ollama','RAG','Docker'],source:'https://github.com/samarth080/archiai-saas'},
- {id:'binance_bot',yr:'2026 · algo-trading · fastapi',desc:"Co-developed a full-stack algorithmic trading system for Binance Futures — multi-timeframe signal engine (RSI, MACD, Bollinger Bands, Supertrend, ADX), Kelly Criterion sizing and a 5-rule risk manager. A news engine scores NLP sentiment across 15+ RSS feeds in real time; 9-tab dashboard with Telegram alerts and a SQLite journal that auto-extracts trade lessons.",stack:['FastAPI','WebSockets','SQLite','Docker'],source:'https://github.com/samarth080/the-ultimate-binance-trading-bot'},
- {id:'Lender Lens',yr:'2026 · fintech · analytics',desc:"A lending analytics platform that turns raw loan-book data into decisions — applicant credit scoring through an ML pipeline, repayment-health tracking, and portfolio-risk views so lenders can see exposure at a glance.",stack:['Django','DRF','scikit-learn','PostgreSQL'],source:'https://github.com/UdaiBatta/LedgerLens'},
- {id:'Monika ERP',yr:'2025 · erp · in production',desc:"A lightweight ERP built for Monika Engineers — unifies the CRM, attendance and inventory modules the business runs on daily. Owned end-to-end: requirements with ownership, data model, modules, deployment, and the ongoing changes real usage demands.",stack:['Python','React','SQLite','Supabase'],source:'https://github.com/UdaiBatta/monika-eng-CRM'},
- {id:'SkyLearn',yr:'2025 · full-stack · lms',desc:"A Django learning management system with 4 user roles, automated grade/GPA calculation and 5 integrated payment gateways (Stripe, PayPal, Coinbase, Paylike, GoPay), with ReportLab-powered report generation.",stack:['Django','Bootstrap 5','ReportLab'],source:'https://github.com/UdaiBatta/LMS'},
+ {id:'ArchiAI',yr:'Apr 2026 – present · ai/backend · django rest',desc:"Bylaw-compliant architectural design platform. A Django REST backend that parses natural-language project requirements into deterministic, explainable design sessions. A vectorless RAG retriever grounds answers in bylaw & architecture knowledge — chosen over embedding similarity for this compliance-sensitive domain. Iteratively engineered Ollama prompts for structured JSON output; async job system for Hypar export; 15+ endpoints secured with auth & RBAC; ~30% faster API responses via query optimization and CI/CD.",stack:['Django REST Framework','Ollama','RAG','Docker'],source:'https://github.com/UdaiBatta/ArchiAI'},
+ {id:'Binance Futures Bot',yr:'Apr 2026 · algo-trading · fastapi',desc:"Co-developed a full-stack algorithmic trading system for Binance Futures — multi-timeframe signal engine (RSI, MACD, Bollinger Bands, Supertrend, ADX), Kelly Criterion sizing and a 5-rule risk manager. A news engine scores NLP sentiment across 15+ RSS feeds in real time; 9-tab dashboard with Telegram alerts and a SQLite journal that auto-extracts trade lessons.",stack:['FastAPI','WebSockets','SQLite','Docker'],source:'https://github.com/samarth080/the-ultimate-binance-trading-bot'},
+ {id:'LedgerLens',yr:'Sep 2026 · fintech · reconciliation',desc:"An evidence-first financial reconciliation workspace. Order, payment-gateway, settlement, bank and ledger records are linked into an immutable evidence graph; a deterministic engine reconciles fees, tax, refunds and settlement differences in integer paise, with audit trails. An optional AI investigator explains findings using only cited evidence — it never alters source records or results. Idempotent batch-ingestion API on Django REST Framework, a React/TypeScript dashboard, and a six-scenario demo (fee mismatch, delayed credit, missing refund, duplicate delivery…).",stack:['Django REST Framework','React','TypeScript','SQLite'],source:'https://github.com/UdaiBatta/LedgerLens'},
+ {id:'Monika ERP',yr:'ongoing · erp · django + react',desc:"The ERP/CRM for Monika Engineers, the successor to the CRM, website and attendance app I built for the business earlier. It follows the employee workflow from incoming customer inquiries through RFQs, quotations and customer orders to workshop handoff, with a Project 360 view and an Owner Control Centre for oversight. A modular Django monolith with session auth and Celery for async work. Phases 1–3 are built; drawings, BOM, purchasing, inventory, quality and dispatch are planned later phases.",stack:['Django REST Framework','React','TypeScript','PostgreSQL','Docker'],source:'https://github.com/UdaiBatta/monika-eng-CRM'},
  {id:'lofi.desktop',yr:'2026 · web · this site',desc:"The desktop you're looking at. A hand-built pixel OS in a single HTML file — a window manager, draggable apps, a working code sandbox, and a recurring duck epidemic.",stack:['HTML','CSS','JavaScript','SVG','canvas'],source:'https://github.com/UdaiBatta/udai-portfolio'},
 ];
 function renderProjects(b){
@@ -1202,7 +1251,7 @@ function renderExperience(b){
   b.innerHTML='<div class="h3">experience</div><div class="tl">'
     +'<div class="tl-item"><span class="t">Jun 2026 — Aug 2026</span><h4>Software Engineering Intern — Shunya AgriTech</h4>'
     +'<div class="s">Gurgaon, India · Remote</div>'
-    +'<p>Built a Django dashboard giving the operations team live visibility into plant-production stage status and QC metrics — reverse-engineering an unfamiliar <b style="color:var(--ink)">24-table MySQL schema</b> into clean Django models. Shipped an image-based fodder-grading ML model trained on a <b style="color:var(--ink)">1,320-image</b> dataset (79% accuracy on fodder detection, 100% on non-fodder), plus an API automation-testing platform for the dashboard\'s service layer.</p></div>'
+    +'<p>Built a Django dashboard giving the operations team live visibility into plant-production stage status and QC metrics — reverse-engineering an unfamiliar <b style="color:var(--ink)">24-table MySQL schema</b> into clean Django models. Shipped an image-based fodder-grading ML model trained on a <b style="color:var(--ink)">1,320-image</b> dataset (79% accuracy on fodder detection, 100% on non-fodder), plus a reusable Python API test platform (Pytest, Requests, Flask) for stateful, multi-step workflows with validation evidence and regression detection.</p></div>'
     +'<div class="tl-item"><span class="t">2023 — Present</span><h4>Software Developer — Monika Engineers</h4>'
     +'<div class="s">Ludhiana, Punjab · family business, part-time</div>'
     +'<p>Built and deployed a CRM (Python, IMAP, SQLite), a live company website (React), and an attendance app (React Native, Supabase) — translating ownership\'s operational needs into working software. Acted as the de-facto business analyst: gathering requirements and owning scope end-to-end.</p></div>'
@@ -1249,17 +1298,26 @@ function renderContact(b){
     +'<a class="btn" href="tel:'+CONFIG.phone.replace(/\s/g,'')+'" style="text-decoration:none">call</a>'
     +'<a class="btn" href="'+CONFIG.github+'" target="_blank" rel="noopener" style="text-decoration:none">github</a>'
     +'<a class="btn" href="'+CONFIG.linkedin+'" target="_blank" rel="noopener" style="text-decoration:none">linkedin</a></div>'
-    +'<div class="note">'+CONFIG.phone+' · '+CONFIG.email+'<br>this demo form stores messages in your browser\'s local outbox.</div>'
+    +'<input name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">'
+    +'<div class="note">'+CONFIG.phone+' · '+CONFIG.email+'<br>'
+    +(CONFIG.formEndpoint?'messages go straight to my inbox.':'sending opens your mail app with the message pre-filled.')+'</div>'
     +'</form></div>';
   b.querySelector('#cform').onsubmit=e=>{
     e.preventDefault();
     const f=e.target;
-    let box=[];
-    try{box=JSON.parse(store.get('outbox')||'[]')||[];}catch(err){box=[];}
-    box.push({n:f.n.value,e:f.e.value,m:f.m.value,at:Date.now()});
-    store.set('outbox',JSON.stringify(box));
-    toast('draft saved locally — or mail me directly.');
-    f.reset();
+    if(f._gotcha.value)return; /* honeypot: bots fill hidden fields */
+    const data={name:f.n.value.trim(),email:f.e.value.trim(),message:f.m.value.trim()};
+    if(!CONFIG.formEndpoint){
+      location.href='mailto:'+CONFIG.email+'?subject='+encodeURIComponent('Portfolio message from '+data.name)
+        +'&body='+encodeURIComponent(data.message+'\n\n— '+data.name+' ('+data.email+')');
+      toast('opening your mail app…');
+      return;
+    }
+    const btn=f.querySelector('button[type=submit]');btn.disabled=true;
+    fetch(CONFIG.formEndpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+      .then(r=>{if(!r.ok)throw new Error(r.status);toast("sent — thanks, I'll reply soon.");f.reset();})
+      .catch(()=>toast("couldn't send — please use the email button."))
+      .finally(()=>{btn.disabled=false;});
   };
 }
 function renderVirus(b){
@@ -1628,12 +1686,18 @@ function enterDesktop(){
   const d=$('#desktop');
   d.classList.remove('hidden');
   requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.add('ready')));
-  setTimeout(()=>{openApp('readme');},750);
+  const deep=hashApp();
+  setTimeout(()=>{openApp(deep||'readme');},deep?150:750);
   scheduleDucks();
   fetchGitHub();
 }
 
 /* ================= init — boot starts first, every step guarded ================= */
+FAST=!!hashApp();
+window.addEventListener('hashchange',()=>{
+  const a=hashApp();
+  if(a&&!$('#desktop').classList.contains('hidden'))openApp(a);
+});
 bootSequence(initLogin);
 
 function step(label,fn){
