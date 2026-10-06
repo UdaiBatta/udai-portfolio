@@ -33,7 +33,9 @@
 })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400;600&display=swap"></noscript>
 <style>
 :root{
   --bg:#10141f;
@@ -130,7 +132,7 @@ button{font-family:inherit}
 
 /* icons */
 #icons{position:absolute;top:16px;left:12px;bottom:60px;display:grid;grid-template-rows:repeat(6,104px);grid-auto-flow:column;grid-auto-columns:96px;z-index:2}
-.icon{width:92px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;border:1px solid transparent;border-radius:8px;user-select:none;opacity:0;transition:background .15s,border-color .15s}
+.icon{width:92px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;border:1px solid transparent;background:none;color:inherit;font:inherit;border-radius:8px;user-select:none;opacity:0;transition:background .15s,border-color .15s}
 #desktop.ready .icon{animation:iconIn .45s ease forwards;animation-delay:var(--d)}
 @keyframes iconIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 .icon img{width:56px;image-rendering:pixelated;transition:filter .18s;will-change:transform}
@@ -138,6 +140,7 @@ button{font-family:inherit}
 .icon:hover{background:rgba(240,199,106,.1);border-color:rgba(240,199,106,.35)}
 body[data-theme="day"] .icon:hover{background:rgba(184,134,46,.08);border-color:rgba(184,134,46,.35)}
 .icon:hover img{filter:drop-shadow(0 8px 8px rgba(8,10,18,.35)) brightness(1.08)}
+.icon:focus-visible,.sm-item:focus-visible,.taskbtn:focus-visible,#startBtn:focus-visible,#clock:focus-visible,#duckTray:focus-visible,#themeBtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .icon.sel{background:rgba(143,184,230,.12);border-color:rgba(143,184,230,.4)}
 body[data-theme="day"] .icon.sel{background:rgba(79,124,174,.1);border-color:rgba(79,124,174,.4)}
 
@@ -153,9 +156,9 @@ body[data-theme="day"] .win{box-shadow:0 18px 45px rgba(90,80,50,.22)}
 body[data-theme="day"] .win.focus{box-shadow:0 22px 55px rgba(90,80,50,.3),0 0 0 1px rgba(184,134,46,.3)}
 .win.closing{transition:transform .22s ease,opacity .22s ease;transform:scale(.88) translateY(10px);opacity:0}
 .win.minimizing{transition:transform .28s ease,opacity .28s ease;transform:translateY(58vh) scale(.15);opacity:0}
-.win.max{left:-30px!important;top:-30px!important;width:calc(100% + 60px)!important;height:calc(100% + 16px)!important;border-radius:0}
+.win.max{left:0!important;top:0!important;width:100%!important;height:calc(100% - 44px)!important;border-radius:0}
 .win.max .rsz{display:none}
-.tbar{display:flex;align-items:center;gap:9px;height:37px;flex:0 0 auto;padding:0 8px 0 12px;background:var(--p2);border-bottom:1px solid var(--line-soft);cursor:grab;user-select:none}
+.tbar{touch-action:none;display:flex;align-items:center;gap:9px;height:37px;flex:0 0 auto;padding:0 8px 0 12px;background:var(--p2);border-bottom:1px solid var(--line-soft);cursor:grab;user-select:none}
 .tbar:active{cursor:grabbing}
 .win.focus .tbar{background:var(--p2h)}
 .ticon{width:16px;height:16px;image-rendering:pixelated}
@@ -237,10 +240,11 @@ body[data-theme="day"] .win.focus{box-shadow:0 22px 55px rgba(90,80,50,.3),0 0 0
 .cal-cell.l3 i,.cal-cell.l4 i{color:#241c08}
 .cal-cell.l1,.cal-cell.l2,.cal-cell.l3,.cal-cell.l4{border-color:transparent}
 .cal-cell.fut{opacity:.28}
+.cal-cell.nodata{opacity:.35;background:transparent;border-style:dashed}
 .cal-cell.today{box-shadow:0 0 0 2px var(--gold)}
 .cal-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px 11px;border-top:1px solid var(--line-soft)}
 #calTotal{font-family:var(--mono);font-size:11px;color:var(--gold)}
-#calSrc{font-family:var(--mono);font-size:8.5px;color:var(--ink-faint);text-align:right;line-height:1.4}
+#calSrc{font-family:var(--mono);font-size:10px;color:var(--ink-faint);text-align:right;line-height:1.4}
 
 /* start menu */
 #startMenu{position:absolute;left:10px;bottom:52px;width:314px;background:var(--solid);border:1px solid var(--line);border-radius:10px;z-index:55;box-shadow:0 22px 55px rgba(0,0,0,.4);overflow:hidden;animation:winIn .18s ease-out}
@@ -249,7 +253,7 @@ body[data-theme="day"] .win.focus{box-shadow:0 22px 55px rgba(90,80,50,.3),0 0 0
 .sm-head b{font-family:var(--pixel);font-weight:500;font-size:14px;display:block}
 .sm-head small{color:var(--ink-faint);font-size:11px}
 .sm-list{max-height:322px;overflow:auto;padding:6px}
-.sm-item{display:flex;gap:11px;align-items:center;padding:8px 10px;border-radius:6px;cursor:pointer;transition:background .12s}
+.sm-item{display:flex;gap:11px;align-items:center;padding:8px 10px;border-radius:6px;cursor:pointer;transition:background .12s;width:100%;background:none;border:none;color:inherit;font:inherit;text-align:left}
 .sm-item:hover{background:var(--p2)}
 .sm-item img{width:26px;image-rendering:pixelated}
 .sm-item b{font-family:var(--pixel);font-weight:500;font-size:12.5px;display:block;color:var(--ink)}
@@ -375,6 +379,30 @@ body[data-theme="day"] .win.focus{box-shadow:0 22px 55px rgba(90,80,50,.3),0 0 0
 /* readme */
 .rd pre{font-family:var(--mono);font-size:12.5px;line-height:1.85;color:var(--ink-dim);white-space:pre-wrap}
 .rd b{color:var(--gold);font-weight:400}
+/* reduced motion: end states only, no looping/ambient animation */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0s!important}
+  .icon{opacity:1}
+  #petals{display:none}
+}
+
+/* small screens */
+@media(max-width:700px){
+  #icons{grid-template-rows:repeat(auto-fill,96px);grid-auto-columns:88px;left:6px}
+  .icon{width:84px;height:92px}
+  .icon img{width:48px}
+  #clockDate,#duckTray span{display:none}
+  .taskbtn span{display:none}
+  .taskbtn{padding:0 10px}
+  #bootLog,.boot-bar{width:min(340px,86vw)}
+  #startMenu{width:min(314px,calc(100vw - 20px))}
+  #calPop{right:6px}
+  .sk-row{grid-template-columns:110px 1fr 36px;gap:8px}
+  .seg{width:7px}
+  .facts{grid-template-columns:1fr}
+  .rs-tip{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -921,7 +949,9 @@ const par={x:0,y:0,tx:0,ty:0};
 window.addEventListener('mousemove',e=>{
   par.tx=(e.clientX/innerWidth)*2-1; par.ty=(e.clientY/innerHeight)*2-1;
 });
+const REDUCED=matchMedia('(prefers-reduced-motion:reduce)');
 function parallaxLoop(){
+  if(REDUCED.matches)return;
   par.x+=(par.tx-par.x)*0.04; par.y+=(par.ty-par.y)*0.04;
   const w=$('#wall'); if(w&&w._px){
     w._px.gSky.setAttribute('transform','translate('+(par.x*7)+','+(par.y*3)+')');
@@ -1087,6 +1117,7 @@ function openApp(id){
     };
     $('#tasks').appendChild(b);rec.task=b;
   }
+  if(!def.virus&&innerWidth<=700)toggleMax(id);
   focusWin(id);
   rec.cleanup=def.render(el.querySelector('.wbody'),rec)||null;
 }
@@ -1477,7 +1508,7 @@ function renderGame(b){
 
 /* ================= github commit calendar ================= */
 let ghData={};
-let ghLive=false;
+let ghLive=false,ghSince='9999-12-31';
 const calCache={};
 let calY=new Date().getFullYear(), calM=new Date().getMonth();
 async function fetchGitHub(){
@@ -1498,27 +1529,24 @@ async function fetchGitHub(){
         if(n>0)ghData[d]=(ghData[d]||0)+n;
       }
     });
-    if(Object.keys(ghData).length){
+    if(events.length){
+      ghSince=events.reduce((m,ev)=>ev.created_at&&ev.created_at.slice(0,10)<m?ev.created_at.slice(0,10):m,'9999-12-31');
       ghLive=true;
       Object.keys(calCache).forEach(k=>delete calCache[k]);
       renderCal();
     }
-  }catch(e){/* offline or rate-limited — demo pattern stays */}
+  }catch(e){/* offline or rate-limited — calendar shows 'unavailable' */}
 }
 function monthCommits(y,m){
   const key=y+'-'+m;
   if(calCache[key])return calCache[key];
-  const R=mulberry32(y*97+m*13+7);
+  /* real data only: GitHub's public events API covers roughly the last 90 days;
+     days outside that window are 'unknown' (null), never invented. */
   const days=new Date(y,m+1,0).getDate();
   const arr=[];
   for(let d=1;d<=days;d++){
     const dk=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    if(ghData[dk]!=null){arr.push(ghData[dk]);continue;}
-    const dow=new Date(y,m,d).getDay(), r=R();
-    let n;
-    if(dow===0||dow===6)n=r<0.45?0:1+Math.floor(R()*4);
-    else n=r<0.12?0:1+Math.floor(R()*R()*10);
-    arr.push(n);
+    arr.push(!ghLive?null:(ghData[dk]!=null?ghData[dk]:(dk>=ghSince?0:null)));
   }
   calCache[key]=arr;return arr;
 }
@@ -1533,15 +1561,16 @@ function renderCal(){
   let total=0;
   const lvl=n=>n===0?'':(n<3?'l1':(n<6?'l2':(n<10?'l3':'l4')));
   for(let d=1;d<=days;d++){
-    const n=arr[d-1];
+    const known=arr[d-1]!==null, n=known?arr[d-1]:0;
     const isFut=calY===now.getFullYear()&&calM===now.getMonth()&&d>now.getDate();
     const isToday=calY===now.getFullYear()&&calM===now.getMonth()&&d===now.getDate();
     if(!isFut)total+=n;
-    html+='<div class="cal-cell '+lvl(n)+(isFut?' fut':'')+(isToday?' today':'')+'" title="'+n+' commit'+(n===1?'':'s')+'"><i>'+d+'</i></div>';
+    html+='<div class="cal-cell '+lvl(n)+(isFut?' fut':'')+(isToday?' today':'')+(known?'':' nodata')+'" title="'+(known?n+' commit'+(n===1?'':'s'):'no data')+'"><i>'+d+'</i></div>';
   }
   $('#calGrid').innerHTML=html;
-  $('#calTotal').textContent=total+' commits · '+new Date(calY,calM,1).toLocaleDateString([],{month:'short'});
-  $('#calSrc').innerHTML=ghLive?('live · github.com/'+CONFIG.handle):'demo pattern<br>connects to github api when online';
+  const anyKnown=arr.some(v=>v!==null);
+  $('#calTotal').textContent=anyKnown?(total+' commits · '+new Date(calY,calM,1).toLocaleDateString([],{month:'short'})):'no data';
+  $('#calSrc').innerHTML=ghLive?('live · github.com/'+CONFIG.handle+'<br>public activity, last ~90 days'):'github activity unavailable<br>(offline or rate-limited)';
 }
 function toggleCal(){
   const c=$('#calPop');
@@ -1570,13 +1599,19 @@ function ducksAnswer(){
 }
 
 /* ================= desktop icons ================= */
+const COARSE=matchMedia('(pointer:coarse)');
 function buildIcons(){
   const host=$('#icons');
   ICON_ORDER.forEach((id,i)=>{
     const def=APPS[id];
-    const d=document.createElement('div');d.className='icon';d.style.setProperty('--d',(i*0.07)+'s');
+    const d=document.createElement('button');d.type='button';d.className='icon';d.style.setProperty('--d',(i*0.07)+'s');
+    d.setAttribute('aria-label','open '+def.title);
     d.innerHTML='<img src="'+iconURL(def.icon)+'" alt=""><span>'+def.title+'</span>';
-    d.addEventListener('click',()=>{document.querySelectorAll('.icon').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');});
+    /* touch / coarse pointers: one tap opens. mouse: click selects, double-click or Enter opens. */
+    d.addEventListener('click',e=>{
+      if(COARSE.matches||e.detail===0){openApp(id);return;} /* detail 0 = keyboard-activated */
+      document.querySelectorAll('.icon').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');
+    });
     d.addEventListener('dblclick',()=>openApp(id));
     const img=d.querySelector('img');
     d.addEventListener('pointermove',e=>{
@@ -1597,8 +1632,8 @@ function buildStartMenu(){
   m.innerHTML='<div class="sm-head"><img src="'+iconURL('user')+'" alt="">'
     +'<div><b>'+CONFIG.name+'</b><small>local account</small></div></div>'
     +'<div class="sm-list">'+Object.keys(APPS).filter(k=>!APPS[k].virus).map(k=>
-      '<div class="sm-item" data-app="'+k+'"><img src="'+iconURL(APPS[k].icon)+'" alt="">'
-      +'<div><b>'+APPS[k].title+'</b><small>'+(descs[k]||'')+'</small></div></div>').join('')+'</div>'
+      '<button type="button" class="sm-item" data-app="'+k+'"><img src="'+iconURL(APPS[k].icon)+'" alt="">'
+      +'<span><b>'+APPS[k].title+'</b><small>'+(descs[k]||'')+'</small></span></button>').join('')+'</div>'
     +'<div class="sm-foot"><span style="font-family:var(--mono);font-size:10.5px;color:var(--ink-faint)">UDAI OS 3.2.1</span>'
     +'<button class="restart"><img src="'+iconURL('power')+'" alt="">restart</button></div>';
   m.querySelectorAll('.sm-item').forEach(it=>it.onclick=()=>{openApp(it.dataset.app);m.classList.add('hidden');$('#startBtn').classList.remove('on');});
@@ -1677,6 +1712,7 @@ function spawnFlyer(){
     setTimeout(()=>openApp('virus'),700);
 }
 function scheduleDucks(){
+  if(REDUCED.matches)return; /* no ambient ducks; they still answer to quack and the console */
   setTimeout(function w(){spawnWaddler();setTimeout(w,22000+Math.random()*28000);},6000);
   setTimeout(function f(){spawnFlyer();setTimeout(f,38000+Math.random()*45000);},14000);
 }
