@@ -1363,9 +1363,10 @@ function renderVirus(b){
 function renderResume(b){
   b.classList.add('resume-body');
   b.innerHTML='<div class="rs-bar">'
-    +'<a class="btn gold" href="'+CONFIG.resumeURL+'" download="Udai_Batta_Full_Stack_Software_Engineer_Resume.pdf">download pdf</a>'
-    +'<a class="btn" id="rsPr" href="'+CONFIG.resumeURL+'" target="_blank" rel="noopener">print</a>'
-    +'<span class="rs-tip">This is the actual resume PDF. Print opens it in the browser PDF viewer; choose Print or "Save as PDF" there.</span>'
+    +'<a class="btn gold" href="'+CONFIG.resumeURL+'" target="_blank" rel="noopener">open pdf</a>'
+    +'<a class="btn" href="'+CONFIG.resumeURL+'" download="Udai_Batta_Full_Stack_Software_Engineer_Resume.pdf">download pdf</a>'
+    +'<a class="btn" href="'+CONFIG.resumeURL+'" target="_blank" rel="noopener">print pdf</a>'
+    +'<span class="rs-tip">Preview and print use the exact resume.pdf file, not a webpage reconstruction.</span>'
     +'</div><iframe class="rs-pdf" src="'+CONFIG.resumeURL+'#view=FitH" title="Udai Batta resume PDF"></iframe>';
 }
 
