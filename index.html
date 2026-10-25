@@ -1621,6 +1621,7 @@ function githubCards(){
       src:{url:r.url}});
   });
   Object.keys(GH.readmes).forEach(full=>{
+    if((CONFIG.ghHide||[]).includes(full.split('/')[1]))return; /* also covers older cached syncs */
     const name=full.split('/')[1], f=FEATURED.find(x=>x.repo.toLowerCase()===full.toLowerCase());
     const label=f?f.id:name.replace(/[-_]/g,' ');
     readmeSections(GH.readmes[full]).forEach((sec,i)=>{
