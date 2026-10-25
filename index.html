@@ -68,6 +68,7 @@ body{font-family:var(--body);color:var(--ink);font-size:14px}
 ::-webkit-scrollbar-track{background:transparent}
 .hidden{display:none!important}
 button{font-family:inherit}
+button,a,.icon,.taskbtn{touch-action:manipulation}
 
 /* ============ BOOT ============ */
 #boot{position:fixed;inset:0;background:#0a0d16;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;cursor:pointer;transition:opacity .45s}
@@ -386,6 +387,35 @@ body[data-theme="day"] .win.focus{box-shadow:0 22px 55px rgba(90,80,50,.3),0 0 0
   #petals{display:none}
 }
 
+/* ud.ai */
+.ua{height:100%;display:flex;flex-direction:column}
+.ua-head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line-soft)}
+.ua-head img{width:30px;image-rendering:pixelated}
+.ua-head b{font-family:var(--pixel);font-weight:500;font-size:14px;display:block}
+.ua-head small{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint)}
+.ua-head .btn{margin-left:auto;padding:4px 11px;font-size:11px}
+.ua-log{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.ua-msg{max-width:88%;padding:9px 12px;border-radius:8px;line-height:1.55;font-size:13.5px;overflow-wrap:anywhere}
+.ua-msg.me{align-self:flex-end;background:var(--gold);color:#241c08;border-bottom-right-radius:2px}
+.ua-msg.bot{align-self:flex-start;background:var(--p2);border:1px solid var(--line-soft);color:var(--ink);border-bottom-left-radius:2px}
+.ua-msg p+p,.ua-msg p+ul,.ua-msg ul+p{margin-top:7px}
+.ua-msg ul{padding-left:18px;margin-top:6px;color:var(--ink-dim)}
+.ua-msg li{margin:3px 0}
+.ua-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.ua-acts .btn{padding:4px 10px;font-size:11px}
+.ua-acts .chip{margin:0;cursor:pointer;text-decoration:none}
+.ua-acts .chip:hover,.ua-chip:hover{border-color:var(--gold);color:var(--ink)}
+.typing{display:flex;gap:5px;padding:12px 14px}
+.typing span{width:7px;height:7px;background:var(--gold);animation:spinSq .9s ease-in-out infinite}
+.typing span:nth-child(2){animation-delay:.15s;background:var(--blue)}.typing span:nth-child(3){animation-delay:.3s;background:var(--sage)}
+.ua-sug{display:flex;gap:6px;overflow-x:auto;padding:8px 14px 2px;flex:0 0 auto}
+.ua-chip{white-space:nowrap;cursor:pointer;margin:0;font-family:var(--mono)}
+.ua-in{display:flex;gap:8px;padding:8px 14px;align-items:flex-end}
+.ua-in textarea{flex:1;resize:none;background:var(--p3);border:1px solid var(--line-soft);color:var(--ink);padding:9px 12px;font-family:var(--body);font-size:13.5px;border-radius:6px;outline:none;max-height:90px}
+.ua-in textarea:focus{border-color:var(--gold)}
+.ua-note{font-family:var(--mono);font-size:10px;color:var(--ink-faint);padding:0 14px 10px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
 /* small screens */
 @media(max-width:700px){
   #icons{grid-template-rows:repeat(auto-fill,96px);grid-auto-columns:88px;left:6px}
@@ -401,7 +431,21 @@ body[data-theme="day"] .win.focus{box-shadow:0 22px 55px rgba(90,80,50,.3),0 0 0
   .seg{width:7px}
   .facts{grid-template-columns:1fr}
   .rs-tip{display:none}
+  /* 16px stops iOS from zooming the page when a field gets focus */
+  .cnt input,.cnt textarea,.ed,.ed .gutter,.ua-in textarea{font-size:16px}
 }
+/* short screens: phones in landscape */
+@media(max-height:520px){
+  #icons{grid-template-rows:repeat(auto-fill,84px);grid-auto-columns:80px;top:8px}
+  .icon{width:76px;height:80px;gap:4px}
+  .icon img{width:40px}
+  #boot{gap:10px}
+  #boot img{width:64px}
+  #bootLog{min-height:0;max-height:38vh;overflow:hidden}
+}
+.boot-fast{text-align:center;padding:0 16px;max-width:100%}
+.rs-mobile{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:8px 2px}
+.rs-mobile p{color:var(--ink-dim);line-height:1.6;font-size:13.5px}
 
 </style>
 </head>
@@ -427,7 +471,7 @@ body[data-theme="day"] .win.focus{box-shadow:0 22px 55px rgba(90,80,50,.3),0 0 0
   <div class="boot-title">UDAI OS</div>
   <pre id="bootLog"></pre>
   <div class="boot-bar"><i id="bootFill"></i></div>
-  <div class="boot-fast">in a hurry? skip straight to: <a href="#resume">resume</a> · <a href="#projects">projects</a> · <a href="#contact">contact</a></div>
+  <div class="boot-fast">in a hurry? skip straight to: <a href="#resume">resume</a> · <a href="#projects">projects</a> · <a href="#contact">contact</a> · <a href="#udai">ask ud.ai</a></div>
   <div class="boot-skip">click anywhere to skip</div>
 </div>
 
@@ -520,6 +564,8 @@ const CONFIG = {
      contact-form messages by email; it accepts the JSON {name,email,message}.
      Empty = the form opens the visitor's mail app with the message pre-filled. */
   formEndpoint: "",
+  /* GitHub repo names ud.ai should never mention, e.g. ["old-test-repo"] */
+  ghHide: [],
 };
 
 /* ================= utils ================= */
@@ -607,6 +653,11 @@ const P_MAIL={K:'#454f74',M:'#f3f1ea'};
 const MAIL=[
 "..............",".KKKKKKKKKKKK.",".KMMMMMMMMMMK.",".KKMMMMMMMMKK.",".KMKKMMMMKKMK.",
 ".KMMKKMMKKMMK.",".KMMMMKKMMMMK.",".KMMMMMMMMMMK.",".KKKKKKKKKKKK."];
+const P_UDAI={k:'#39415f',b:'#f3f1ea',y:'#f0c76a',d:'#8fb8e6'};
+const UDAI=[
+"..kkkkkkkkkkk...",".kbbbbbbbbbbbk..","kbbbbbbbbbbbbbk.","kbbyybbbbbyybbk.",
+"kbbyybbbbbyybbk.","kbbbbbbbbbbbbbk.","kbbbbddddbbbbbk.",".kbbbbbbbbbbbk..",
+"..kkkbkkkkkkk...","....kbk.........",".....kk........."];
 const P_NOTE={k:'#454f74',n:'#f3f1ea',m:'#f0c76a'};
 const NOTE=[
 "....kkkkkkkk....","....knnnnnnk....","....knmmmnnk....","....knnnnnnk....",
@@ -650,10 +701,12 @@ function buildSprites(){
   SPR.mail=makeSprite(MAIL,P_MAIL);SPR.note=makeSprite(NOTE,P_NOTE);
   SPR.doc=makeSprite(DOC,P_DOC);SPR.warn=makeSprite(WARN,P_WARN,4);
   SPR.brief=makeSprite(BRIEF,P_BRIEF);SPR.power=makeSprite(POWER,P_POW,3);
+  SPR.udai=makeSprite(UDAI,P_UDAI);
   SPR.sun=makeSprite(SUN,P_SUN);SPR.moon=makeSprite(MOON,P_MOON);
   const l=document.createElement('link');l.rel='icon';l.href=SPR.duckA.toDataURL();document.head.appendChild(l);
 }
-const iconURL=k=>SPR[k].toDataURL();
+const URLS={};
+const iconURL=k=>URLS[k]||(URLS[k]=SPR[k].toDataURL()); /* encode each sprite once */
 
 /* ================= wallpaper — layered pixel city, night & day ================= */
 let wallSeed=7;
@@ -1065,10 +1118,11 @@ const APPS={
   code:{title:'code.exe',icon:'mon',w:660,h:520,render:renderCode},
   game:{title:'duck_hunt.exe',icon:'pad',w:540,h:440,render:renderGame},
   contact:{title:'contact.exe',icon:'mail',w:520,h:570,render:renderContact},
+  udai:{title:'ud.ai',icon:'udai',w:560,h:600,render:renderUdai},
   readme:{title:'readme.txt',icon:'note',w:470,h:560,render:renderReadme},
   virus:{title:'duck_virus.exe',icon:'warn',w:400,h:290,render:renderVirus,virus:true},
 };
-const ICON_ORDER=['about','resume','skills','projects','experience','education','code','game','contact'];
+const ICON_ORDER=['udai','about','resume','skills','projects','experience','education','code','game','contact'];
 
 /* ---------- window manager ---------- */
 let zTop=10; const wins=new Map();
@@ -1080,7 +1134,7 @@ function openApp(id){
   const W=Math.min(def.w,vw-24),H=Math.min(def.h,vh-70);
   const n=wins.size;
   let L,T;
-  if(def.virus){L=vw/2-W/2+(Math.random()*70-35);T=60+Math.random()*50;}
+  if(def.virus){L=Math.max(8,Math.min(vw-W-8,vw/2-W/2+(Math.random()*70-35)));T=Math.max(8,Math.min(vh-44-H-8,60+Math.random()*50));}
   else{
     L=(vw-W)/2+(n-1)*22-20;
     T=(vh-44-H)/2+(n-1)*16-14;
@@ -1117,7 +1171,7 @@ function openApp(id){
     };
     $('#tasks').appendChild(b);rec.task=b;
   }
-  if(!def.virus&&innerWidth<=700)toggleMax(id);
+  if(!def.virus&&(innerWidth<=700||innerHeight<=520))toggleMax(id);
   focusWin(id);
   rec.cleanup=def.render(el.querySelector('.wbody'),rec)||null;
 }
@@ -1199,15 +1253,16 @@ function makeDraggable(el,handle,rec){
 }
 
 /* ---------- app contents ---------- */
+const ABOUT_BIO='Final-year B.E. student at Thapar Institute, Patiala. I build '
+  +'full-stack applications — React and TypeScript front ends, Django/DRF and FastAPI services, '
+  +'RAG pipelines — and I like software that feels calm and obvious on the surface. Interned at Shunya AgriTech '
+  +'shipping a production dashboard and a computer-vision grading model, and I run software '
+  +'for my family\'s business end-to-end. Currently growing into agentic AI.';
 function renderAbout(b){
   b.innerHTML='<div class="about">'
     +'<div class="ab-head"><img src="'+iconURL('user')+'" alt="">'
     +'<div><b>'+CONFIG.name+'</b><span>'+CONFIG.role+'</span></div></div>'
-    +'<p>Final-year B.E. student at Thapar Institute, Patiala. I build '
-    +'full-stack applications — React and TypeScript front ends, Django/DRF and FastAPI services, '
-    +'RAG pipelines — and I like software that feels calm and obvious on the surface. Interned at Shunya AgriTech '
-    +'shipping a production dashboard and a computer-vision grading model, and I run software '
-    +'for my family\'s business end-to-end. Currently growing into agentic AI.</p>'
+    +'<p>'+ABOUT_BIO+'</p>'
     +'<hr class="hr"><div class="h3">quick facts</div>'
     +'<div class="facts">'
     +'<div><small>FOCUS</small><b>full-stack, APIs &amp; databases</b></div>'
@@ -1278,26 +1333,36 @@ function renderProjects(b){
   });
   show(0);
 }
+function openProject(id){
+  openApp('projects');
+  const i=PROJECTS.findIndex(p=>p.id===id);
+  const it=wins.get('projects')&&wins.get('projects').el.querySelector('.pj-item[data-i="'+i+'"]');
+  if(it)it.click();
+}
+/* one source of truth: the windows and ud.ai both read these */
+const EXPERIENCE=[
+ {id:'shunya',when:'Jun 2026 — Aug 2026',title:'Software Engineering Intern — Shunya AgriTech',where:'Gurgaon, India · Remote',
+  html:'Built a Django dashboard giving the operations team live visibility into plant-production stage status and QC metrics — reverse-engineering an unfamiliar <b style="color:var(--ink)">24-table MySQL schema</b> into clean Django models. Shipped an image-based fodder-grading ML model trained on a <b style="color:var(--ink)">1,320-image</b> dataset (79% accuracy on fodder detection, 100% on non-fodder), plus a reusable Python API test platform (Pytest, Requests, Flask) for stateful, multi-step workflows with validation evidence and regression detection.'},
+ {id:'monika',when:'2023 — Present',title:'Software Developer — Monika Engineers',where:'Ludhiana, Punjab · family business, part-time',
+  html:'Built and deployed a CRM (Python, IMAP, SQLite), a live company website (React), and an attendance app (React Native, Supabase) — translating ownership\'s operational needs into working software. Acted as the de-facto business analyst: gathering requirements and owning scope end-to-end.'},
+];
+const EDUCATION=[
+ {id:'thapar',when:'Aug 2024 — May 2027',title:'B.E., Computer Science — Thapar Institute of Engineering &amp; Technology',where:'Patiala, Punjab',
+  html:'Core coursework: DSA, DBMS, Operating Systems, Computer Networks, OOP, System Design, Discrete Mathematics.'},
+ {id:'polytechnic',when:'Aug 2021 — Aug 2024',title:'Diploma in Computer Science — Thapar Polytechnic College',where:'Patiala, Punjab',
+  html:'Started the programming habit early — C, C++, and the realisation that debugging is most of the job.'},
+];
+const CERTS=['AWS Academy — Microservices &amp; CI/CD','AWS Academy — Cloud Foundations'];
+const tlHTML=list=>list.map(e=>'<div class="tl-item"><span class="t">'+e.when+'</span><h4>'+e.title+'</h4>'
+  +'<div class="s">'+e.where+'</div><p>'+e.html+'</p></div>').join('');
 function renderExperience(b){
-  b.innerHTML='<div class="h3">experience</div><div class="tl">'
-    +'<div class="tl-item"><span class="t">Jun 2026 — Aug 2026</span><h4>Software Engineering Intern — Shunya AgriTech</h4>'
-    +'<div class="s">Gurgaon, India · Remote</div>'
-    +'<p>Built a Django dashboard giving the operations team live visibility into plant-production stage status and QC metrics — reverse-engineering an unfamiliar <b style="color:var(--ink)">24-table MySQL schema</b> into clean Django models. Shipped an image-based fodder-grading ML model trained on a <b style="color:var(--ink)">1,320-image</b> dataset (79% accuracy on fodder detection, 100% on non-fodder), plus a reusable Python API test platform (Pytest, Requests, Flask) for stateful, multi-step workflows with validation evidence and regression detection.</p></div>'
-    +'<div class="tl-item"><span class="t">2023 — Present</span><h4>Software Developer — Monika Engineers</h4>'
-    +'<div class="s">Ludhiana, Punjab · family business, part-time</div>'
-    +'<p>Built and deployed a CRM (Python, IMAP, SQLite), a live company website (React), and an attendance app (React Native, Supabase) — translating ownership\'s operational needs into working software. Acted as the de-facto business analyst: gathering requirements and owning scope end-to-end.</p></div>'
+  b.innerHTML='<div class="h3">experience</div><div class="tl">'+tlHTML(EXPERIENCE)
     +'</div><p class="mut" style="font-family:var(--mono);font-size:11px;margin-top:6px">references & letters available on request.</p>';
 }
 function renderEducation(b){
-  b.innerHTML='<div class="h3">education</div><div class="tl">'
-    +'<div class="tl-item"><span class="t">Aug 2024 — May 2027</span><h4>B.E., Computer Science — Thapar Institute of Engineering &amp; Technology</h4>'
-    +'<div class="s">Patiala, Punjab</div>'
-    +'<p>Core coursework: DSA, DBMS, Operating Systems, Computer Networks, OOP, System Design, Discrete Mathematics.</p></div>'
-    +'<div class="tl-item"><span class="t">Aug 2021 — Aug 2024</span><h4>Diploma in Computer Science — Thapar Polytechnic College</h4>'
-    +'<div class="s">Patiala, Punjab</div>'
-    +'<p>Started the programming habit early — C, C++, and the realisation that debugging is most of the job.</p></div>'
+  b.innerHTML='<div class="h3">education</div><div class="tl">'+tlHTML(EDUCATION)
     +'</div><div class="h3" style="margin-top:16px">certifications</div>'
-    +'<div><span class="chip gold">AWS Academy — Microservices &amp; CI/CD</span><span class="chip gold">AWS Academy — Cloud Foundations</span></div>';
+    +'<div>'+CERTS.map(c=>'<span class="chip gold">'+c+'</span>').join('')+'</div>';
 }
 function renderReadme(b){
   b.innerHTML='<div class="rd"><pre>hi, welcome to my desktop.\n\n'
@@ -1305,9 +1370,10 @@ function renderReadme(b){
     +'- <b>double-click</b> any icon to open it\n'
     +'- <b>resume.pdf</b> opens my resume — download it there\n'
     +'- <b>projects/</b> and <b>experience/</b> are separate — code vs jobs\n'
+    +'- <b>ud.ai</b> answers questions about me — synced live from my github\n'
     +'- the <b>code editor</b> actually runs code (try duck.js)\n'
     +'- <b>duck_hunt.exe</b> is a real (tiny) game\n'
-    +'- click the <b>clock</b> for my commit calendar\n'
+    +'- click the <b>clock</b> for my github contribution calendar\n'
     +'- the sun/moon button flips <b>day / night</b>\n'
     +'- drag the <b>bottom-right corner</b> of any window to resize it\n\n'
     +'psst — secrets (don\'t tell the recruiters):\n\n'
@@ -1367,7 +1433,16 @@ function renderResume(b){
     +'<a class="btn" href="'+CONFIG.resumeURL+'" download="Udai_Batta_Full_Stack_Software_Engineer_Resume.pdf">download pdf</a>'
     +'<a class="btn" href="'+CONFIG.resumeURL+'" target="_blank" rel="noopener">print pdf</a>'
     +'<span class="rs-tip">Preview and print use the exact resume.pdf file, not a webpage reconstruction.</span>'
-    +'</div><iframe class="rs-pdf" src="'+CONFIG.resumeURL+'#view=FitH" title="Udai Batta resume PDF"></iframe>';
+    +'</div>'
+    /* phone browsers often can't show a PDF inside a page (Android shows nothing, iOS only
+       page one), so they get a hand-off to their own full-screen PDF viewer instead */
+    +(inlinePdfOK()?'<iframe class="rs-pdf" src="'+CONFIG.resumeURL+'#view=FitH" title="Udai Batta resume PDF"></iframe>'
+      :'<div class="rs-mobile"><div class="h3">'+CONFIG.name+' — resume</div>'
+      +'<p>'+CONFIG.role+'<br>Your phone shows PDFs best in its own viewer — tap below to read it full screen.</p>'
+      +'<a class="btn gold" href="'+CONFIG.resumeURL+'" target="_blank" rel="noopener">read resume (pdf)</a></div>');
+}
+function inlinePdfOK(){
+  return navigator.pdfViewerEnabled!==false&&!COARSE.matches;
 }
 
 /* ---------- code editor ---------- */
@@ -1420,6 +1495,390 @@ function renderCode(b){
   b.querySelectorAll('.ed-tab').forEach(t=>t.onclick=()=>load(t.dataset.f));
   load('portfolio.js');
   return null;
+}
+
+
+/* ================================================================
+   ud.ai — answers questions about Udai from this site's data plus his
+   public GitHub (repo list + READMEs, re-synced every few hours).
+   Runs entirely in the browser: BM25 retrieval + extractive answers,
+   so every sentence it shows is copied from a real source. No AI model,
+   no key, nothing invented.
+================================================================ */
+const RESUME_SKILLS={
+  'languages':['Python','C++','TypeScript','JavaScript','SQL','HTML/CSS','JSON'],
+  'frontend & backend':['React','React Native','Django','Django REST Framework','FastAPI','Flask','REST APIs','WebSockets','asynchronous processing'],
+  'databases & security':['PostgreSQL','MySQL','SQLite','MongoDB','data modeling','database integration','authentication','authorization','RBAC'],
+  'testing & reliability':['Pytest','unit testing','API testing','integration testing','regression validation','debugging','structured logs','error handling','performance optimization'],
+  'delivery & collaboration':['Docker','Git','CI/CD','production deployment','requirements analysis','system design','stakeholder communication','Agile/Scrum','Jira'],
+};
+const listedRepos=()=>GH.repos.filter(r=>!r.fork&&r.name.toLowerCase()!==CONFIG.handle.toLowerCase()&&!(CONFIG.ghHide||[]).includes(r.name));
+const GH_TTL=6*3600*1000, GH_KEY='udai-gh-kb', GH_EXTRA=8;
+const stripTags=h=>String(h).replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&#39;|&apos;/g,"'").replace(/&quot;/g,'"').replace(/&nbsp;/g,' ');
+const escH=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+/* ---- text processing ---- */
+const STOP=new Set(('a an the is are was were be been being of to in on for with and or by at as it its this that these those from what which who whom whose how does do did done has have had he his him i me my you your can could would should will shall about tell any some there their they them into over than then so if not no yes also more most very just much many please give show me us we our explain describe detail details detailed udai batta batta\'s udai\'s whats what\'s does did know about').split(' '));
+function stem(w){
+  if(w.length>4){
+    if(w.endsWith('ies'))return w.slice(0,-3)+'y';
+    if(w.endsWith('ing'))return w.slice(0,-3);
+    if(w.endsWith('ed'))return w.slice(0,-2);
+    if(w.endsWith('s')&&!w.endsWith('ss'))return w.slice(0,-1);
+  }
+  return w;
+}
+function toks(t){
+  return String(t).toLowerCase().replace(/c\+\+/g,'cplusplus').replace(/[^a-z0-9#.+\/ -]+/g,' ').replace(/[.\/+-]+(\s|$)/g,' ')
+    .split(/[\s\/]+/).filter(w=>w&&w.length>1&&!STOP.has(w)).map(stem);
+}
+const SYN={
+  backend:['api','server','django','fastapi','rest'],api:['backend','rest','endpoint'],
+  frontend:['react','ui','typescript','interface','dashboard'],
+  ai:['ml','llm','rag','ollama','nlp','vision','model'],ml:['ai','vision','scikit','model','train'],
+  llm:['ai','ollama','rag','claude','anthropic'],rag:['retrieval','bm25','ai'],
+  database:['sql','postgresql','mysql','sqlite','db','mongodb','schema'],db:['database','sql'],sql:['database','postgresql','mysql','sqlite'],
+  job:['experience','intern','internship','work'],work:['experience','intern','job'],internship:['intern','experience'],intern:['internship','experience'],
+  test:['testing','pytest','qa','regression'],testing:['test','pytest','regression'],
+  trading:['binance','bot','crypto'],crypto:['binance','trading'],
+  finance:['ledgerlens','reconciliation','fintech','payment'],fintech:['ledgerlens','reconciliation'],
+  erp:['monika','crm'],crm:['monika','erp'],
+  study:['education','degree','college','thapar'],college:['education','thapar','degree'],degree:['education','thapar'],
+  deploy:['docker','ci/cd','deployment'],docker:['deploy','container'],
+};
+function qTerms(q){
+  const base=toks(q), out=new Map();
+  base.forEach(t=>out.set(t,1));
+  base.forEach(t=>(SYN[t]||[]).forEach(x=>{const s2=stem(x);if(!out.has(s2))out.set(s2,0.45);}));
+  return out;
+}
+/* no regex lookbehind: it is a syntax error on older iOS Safari and would stop the whole page */
+const sentences=t=>String(t).replace(/\s+/g,' ').replace(/\b(e\.g|i\.e|etc|vs|approx|incl)\./gi,'$1\u0002')
+  .replace(/([.!?])\s+(?=[A-Z0-9(“"'])/g,'$1\u0001').split('\u0001').map(x=>x.replace(/\u0002/g,'.').trim()).filter(x=>x.length>12);
+
+/* ---- markdown README -> sections ---- */
+function mdToText(md){
+  return md.replace(/```[\s\S]*?```/g,' ').replace(/<!--[\s\S]*?-->/g,' ')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g,' ').replace(/\[([^\]]+)\]\([^)]*\)/g,'$1')
+    .replace(/<[^>]+>/g,' ').replace(/`([^`]+)`/g,'$1').replace(/[*_~]{1,3}([^*_~\n]+)[*_~]{1,3}/g,'$1')
+    .replace(/^\s*\|?\s*:?-{3,}.*$/gm,' ').replace(/^\s*\|/gm,'').replace(/\|/g,' · ')
+    .replace(/^\s*[-*+]\s+(.*)$/gm,(m,x)=>x.replace(/[.:;,\s]*$/,'')+'.')
+    .replace(/^\s*\d+[.)]\s+(.*)$/gm,(m,x)=>x.replace(/[.:;,\s]*$/,'')+'.')
+    .replace(/^>\s?/gm,'').replace(/[ \t]+/g,' ').replace(/\n{2,}/g,'\n').trim();
+}
+function readmeSections(md){
+  const out=[]; let cur={h:'overview',body:[]};
+  md.replace(/```[\s\S]*?```/g,m=>m.replace(/^#/gm,'')).split('\n').forEach(line=>{
+    const m=line.match(/^\s{0,3}#{1,4}\s+(.+?)\s*#*\s*$/);
+    if(m){out.push(cur);cur={h:stripTags(m[1]).replace(/[*_`]/g,'').trim(),body:[]};}
+    else cur.body.push(line);
+  });
+  out.push(cur);
+  return out.map(x=>({h:x.h,text:mdToText(x.body.join('\n'))}))
+    .filter(x=>x.text.length>40&&!/licen[cs]e|contribut|acknowledg|code of conduct|^table of contents|^contents$|^toc$/i.test(x.h));
+}
+
+/* ---- knowledge base ---- */
+let KB=[], KBIDX=null, GH={at:0,repos:[],readmes:{}}, ghSync='idle';
+try{const c=JSON.parse(store.get(GH_KEY)||'null');if(c&&c.repos)GH=c;}catch(e){}
+const repoOf=url=>{const m=String(url).match(/github\.com\/([^\/]+)\/([^\/#?]+)/);return m?m[1]+'/'+m[2]:null;};
+const FEATURED=PROJECTS.map(p=>({id:p.id,repo:repoOf(p.source)})).filter(x=>x.repo);
+function staticCards(){
+  const C=[];
+  const add=(id,kind,title,text,src,tags)=>C.push({id,kind,title,text:stripTags(text),src,tags:tags||''});
+  add('me.summary','summary','Udai in 30 seconds',
+    CONFIG.name+' is a final-year B.E. Computer Science student at Thapar Institute of Engineering and Technology in Patiala (graduating May 2027) and a full stack software engineer — React, Python, APIs and databases. He has interned at Shunya AgriTech, builds and runs software for his family\'s business Monika Engineers, and his main projects are ArchiAI, LedgerLens and Monika ERP. He is open for SDE internships.',
+    {app:'about'},'summary overview who introduction profile');
+  add('me.bio','summary','About Udai',ABOUT_BIO.replace(/\bI\b/g,'he').replace(/\bmy\b/g,'his').replace(/^Final-year/,'He is a final-year'),{app:'about'},'about bio');
+  add('me.status','availability','Availability','He is open for SDE internships. He is based in Patiala, Punjab, India. He is currently learning agentic AI and system design.',
+    {app:'about'},'available hire hiring internship open looking job opportunity role location based learning');
+  add('me.contact','contact','How to reach him','Email: '+CONFIG.email+'. Phone: '+CONFIG.phone+'. GitHub: github.com/'+CONFIG.handle+'. LinkedIn: '+CONFIG.linkedin.replace(/^https?:\/\//,'')+'. The contact window on this desktop can also send him a message.',
+    {app:'contact'},'contact email phone call reach linkedin github message');
+  EXPERIENCE.forEach(e=>add('exp.'+e.id,'job',stripTags(e.title),stripTags(e.title)+' ('+e.when+', '+e.where+'). '+stripTags(e.html),{app:'experience'},'experience work job intern'));
+  EDUCATION.forEach(e=>add('edu.'+e.id,'education',stripTags(e.title),stripTags(e.title)+' ('+e.when+', '+e.where+'). '+stripTags(e.html),{app:'education'},'education study degree college'));
+  add('edu.certs','education','Certifications','Certifications: '+CERTS.map(stripTags).join(', ')+'.',{app:'education'},'certification certificate aws cloud');
+  Object.keys(RESUME_SKILLS).forEach(g=>add('skills.'+g.replace(/\W+/g,'-'),'skills','Skills — '+g,
+    'From his resume, '+g+': '+RESUME_SKILLS[g].join(', ')+'.',{app:'skills'},'skills stack tech technologies '+g));
+  PROJECTS.forEach(p=>add('proj.'+p.id,'project',p.id,p.id+' ('+p.yr+'). '+p.desc.replace(/\bI built\b/g,'he built').replace(/\bI\b/g,'he')+' Stack: '+p.stack.join(', ')+'.',
+    {project:p.id,url:p.source},'project built '+p.stack.join(' ')));
+  add('site.udai','site','About ud.ai','ud.ai answers from his resume, this desktop and his public GitHub repositories and READMEs, re-synced every few hours. It runs a BM25 keyword search in your browser — the same vectorless retrieval idea he used in ArchiAI — and only shows sentences copied from those sources, so it never invents anything.',
+    {app:'udai'},'udai ai assistant how work');
+  return C;
+}
+function githubCards(){
+  const C=[], feat=new Set(FEATURED.map(f=>f.repo.toLowerCase()));
+  const own=listedRepos();
+  if(own.length){
+    const recent=own.slice(0,5).map(r=>r.name+' ('+r.pushed.slice(0,10)+')').join(', ');
+    C.push({id:'gh.overview',kind:'github',title:'GitHub overview',tags:'github repositories repos recent latest',
+      text:'He has '+own.length+' public repositories of his own on GitHub (github.com/'+CONFIG.handle+'). Most recently updated: '+recent+'.',
+      src:{url:'https://github.com/'+CONFIG.handle+'?tab=repositories'}});
+  }
+  GH.repos.forEach(r=>{
+    if((r.fork&&!feat.has(r.full.toLowerCase()))||(CONFIG.ghHide||[]).includes(r.name))return;
+    C.push({id:'repo.'+r.full,kind:'repo',title:r.name,tags:'repository repo github '+(r.lang||'')+' '+r.name.replace(/[-_]/g,' '),
+      text:r.name+(r.desc?': '+r.desc.replace(/[.\s]*$/,'')+'.':'.')+(r.lang?' Main language: '+r.lang+'.':'')+' Last updated '+r.pushed.slice(0,10)+'.'+(r.stars?' Stars: '+r.stars+'.':'')+(r.fork?' (a fork of a co-developed repository)':''),
+      src:{url:r.url}});
+  });
+  Object.keys(GH.readmes).forEach(full=>{
+    const name=full.split('/')[1], f=FEATURED.find(x=>x.repo.toLowerCase()===full.toLowerCase());
+    const label=f?f.id:name.replace(/[-_]/g,' ');
+    readmeSections(GH.readmes[full]).forEach((sec,i)=>{
+      sentences(sec.text).reduce((chunks,snt)=>{const l=chunks[chunks.length-1];if(l&&l.length+snt.length<700)chunks[chunks.length-1]=l+' '+snt;else chunks.push(snt);return chunks;},[])
+        .forEach((chunk,j)=>C.push({id:'readme.'+full+'.'+i+'.'+j,kind:'readme',title:label+' — '+sec.h,
+          tags:label+' '+name.replace(/[-_]/g,' ')+' '+sec.h+' readme github',text:chunk,
+          src:{url:'https://github.com/'+full+'#readme',project:f&&f.id}}));
+    });
+  });
+  return C;
+}
+function buildKB(){
+  KB=staticCards().concat(githubCards());
+  const docs=KB.map(c=>{const tf=new Map();const add=(t,w)=>toks(t).forEach(x=>tf.set(x,(tf.get(x)||0)+w));
+    add(c.title,2);add(c.tags,1.5);add(c.text,1);let len=0;tf.forEach(v=>len+=v);return {tf,len};});
+  const df=new Map();docs.forEach(d=>d.tf.forEach((v,k)=>df.set(k,(df.get(k)||0)+1)));
+  const avg=docs.reduce((a,d)=>a+d.len,0)/Math.max(1,docs.length);
+  KBIDX={docs,df,avg,N:docs.length};
+}
+function search(q,filter,k){
+  const Q=qTerms(q),{docs,df,avg,N}=KBIDX,res=[];
+  KB.forEach((c,i)=>{
+    if(filter&&!filter(c))return;
+    const d=docs[i];let sc=0,core=0;
+    Q.forEach((w,t)=>{const f=d.tf.get(t);if(!f)return;
+      const idf=Math.log(1+(N-(df.get(t)||0)+0.5)/((df.get(t)||0)+0.5));
+      sc+=w*idf*(f*2.2)/(f+1.2*(0.25+0.75*d.len/avg));if(w===1)core++;});
+    if(sc>0&&core)res.push({c,sc,core});
+  });
+  return res.sort((a,b)=>b.sc-a.sc).slice(0,k||6);
+}
+
+/* ---- GitHub sync (repo list via API, READMEs via raw.githubusercontent.com) ---- */
+async function syncGitHub(force){
+  if(ghSync==='syncing')return;
+  if(!force&&GH.at&&Date.now()-GH.at<GH_TTL)return;
+  ghSync='syncing';udaiStatus();
+  try{
+    const r=await fetch('https://api.github.com/users/'+CONFIG.handle+'/repos?per_page=100&sort=pushed');
+    if(!r.ok)throw new Error('github '+r.status);
+    const list=await r.json();
+    const repos=list.map(x=>({name:x.name,full:x.full_name,desc:x.description||'',lang:x.language||'',pushed:x.pushed_at||x.updated_at||'',
+      url:x.html_url,fork:!!x.fork,stars:x.stargazers_count||0})).sort((a,b)=>b.pushed<a.pushed?-1:1);
+    const want=FEATURED.map(f=>f.repo);
+    repos.filter(x=>!x.fork&&!(CONFIG.ghHide||[]).includes(x.name)).forEach(x=>{if(want.length<FEATURED.length+GH_EXTRA&&!want.some(w=>w.toLowerCase()===x.full.toLowerCase()))want.push(x.full);});
+    const readmes={};
+    await Promise.all(want.map(async full=>{
+      for(const f of ['README.md','readme.md','Readme.md']){
+        try{const rr=await fetch('https://raw.githubusercontent.com/'+full+'/HEAD/'+f);
+          if(rr.ok){readmes[full]=(await rr.text()).slice(0,20000);return;}}catch(e){}
+      }
+      if(GH.readmes[full])readmes[full]=GH.readmes[full]; /* keep the last good copy */
+    }));
+    GH={at:Date.now(),repos,readmes};
+    store.set(GH_KEY,JSON.stringify(GH));
+    ghSync='ok';
+  }catch(e){ghSync='failed';}
+  buildKB();udaiStatus();
+}
+
+/* ---- answering ---- */
+const PROJ_ALIAS=[
+  [/archi\s?ai|bylaw|floor ?plan|architect/i,'ArchiAI'],[/ledger\s?lens|lender\s?lens|reconcil/i,'LedgerLens'],
+  [/binance|trading|crypto/i,'Binance Futures Bot'],[/monika\s?(erp|crm)|\berp\b|\bcrm\b/i,'Monika ERP'],
+  [/this (site|desktop|portfolio|website)|lofi|udai ?os|portfolio site/i,'lofi.desktop'],
+];
+const fmtDate=iso=>{try{return new Date(iso).toLocaleDateString([],{day:'numeric',month:'short',year:'numeric'});}catch(e){return iso.slice(0,10);}};
+function bestSentences(c,Q,n){
+  return sentences(c.text).map((snt,i)=>{let sc=0;const t=new Set(toks(snt));Q.forEach((w,k)=>{if(t.has(k))sc+=w;});return {snt,sc:sc-i*0.01};})
+    .sort((a,b)=>b.sc-a.sc).slice(0,n).sort((a,b)=>c.text.indexOf(a.snt)-c.text.indexOf(b.snt)).map(x=>x.snt);
+}
+function chipFor(c){
+  if(c.src.project&&c.kind==='project')return {label:'projects/ › '+c.src.project,run:()=>openProject(c.src.project)};
+  if(c.src.app)return {label:APPS[c.src.app].title,run:()=>openApp(c.src.app)};
+  if(c.src.url)return {label:'github › '+c.title.slice(0,40),url:c.src.url};
+  return null;
+}
+function answer(q){
+  const raw=q.trim(), lq=raw.toLowerCase(), Q=qTerms(raw);
+  const A={paras:[],bullets:[],chips:[],actions:[]};
+  const cite=c=>{const ch=chipFor(c);if(ch&&!A.chips.some(x=>x.label===ch.label))A.chips.push(ch);};
+  const card=id=>KB.find(c=>c.id===id);
+  const contactActions=()=>{A.actions.push({label:'copy email',run:copyEmail},{label:'open contact.exe',run:()=>openApp('contact')});};
+  if(!raw)return null;
+  if(/ignore (all|your|previous)|system prompt|jailbreak|pretend|you are now|act as|reveal your/i.test(lq)){
+    A.paras.push("I can't change how I work — I only repeat what's in Udai's resume, this site and his GitHub. Here's the real summary instead:");
+    A.paras.push(card('me.summary').text);cite(card('me.summary'));return A;
+  }
+  if(/^(hi|hello|hey|yo|sup|namaste|hola|good (morning|evening|afternoon))\b/.test(lq)&&toks(lq).length<=2){
+    A.paras.push("quack! I'm ud.ai. Ask me anything about Udai — his projects, internship, skills, education or how to reach him. Everything I say comes from his resume, this desktop and his GitHub.");return A;
+  }
+  if(/salary|ctc|stipend|\bpay\b|girlfriend|religion|caste|politic|\bage\b|how old|address|aadhaar|\bmarks\b|\bcgpa\b|\bgpa\b|grades?/i.test(lq)){
+    A.paras.push("That isn't on his resume or GitHub, so I won't guess. Ask Udai directly — he's quick to reply.");contactActions();return A;
+  }
+  if(/contact|e-?mail|phone|reach|call him|linkedin|get in touch|message him/i.test(lq)){
+    const c=card('me.contact');A.paras.push(c.text);cite(c);contactActions();return A;
+  }
+  if(/availab|hire|hiring|open to|looking for|notice period|join|relocat/i.test(lq)){
+    const c=card('me.status');A.paras.push(c.text);cite(c);contactActions();return A;
+  }
+  /* "does he know X?" — check the resume first, then the projects and READMEs */
+  const sk=lq.match(/(?:does|do|has|have|can|is)\s+(?:he|udai|him)?\s*(?:know|knows|use|used|using|worked with|work with|familiar with|experience (?:with|in)|good at|code in|written|write|built with|build with)\s+(.+?)[?.!]*$/)
+    ||lq.match(/(?:experience|skills?) (?:with|in)\s+(.+?)[?.!]*$/);
+  if(sk){
+    const skill=sk[1].replace(/\b(before|at all|in production|professionally|much|well|too|also|ever)\b/g,'').trim();
+    const sl=skill.toLowerCase().replace(/\s+/g,' ');
+    const inResume=[].concat(...Object.values(RESUME_SKILLS)).find(x=>x.toLowerCase()===sl||x.toLowerCase().split(/[ \/]/).includes(sl));
+    const re=new RegExp('(^|[^a-z0-9])'+sl.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^a-z0-9]|$)','i');
+    const hits=KB.filter(c=>c.kind!=='skills'&&re.test(c.text)).slice(0,40);
+    const where=[];hits.forEach(c=>{const nm=c.src.project||c.title.split(' — ')[0];if(!where.includes(nm))where.push(nm);});
+    if(inResume){
+      A.paras.push('Yes — '+inResume+' is on his resume.'+(where.length?' It shows up in: '+where.slice(0,4).join(', ')+'.':''));
+      const ex=hits.find(c=>c.kind==='project'||c.kind==='job')||hits[0];
+      if(ex){const s1=sentences(ex.text).find(x=>re.test(x));if(s1)A.paras.push('For example: “'+s1+'”');cite(ex);}
+      cite(KB.find(c=>c.kind==='skills'));return A;
+    }
+    if(hits.length){
+      A.paras.push(skill+" isn't listed on his resume, but it appears in "+where.slice(0,3).join(', ')+':');
+      const s1=sentences(hits[0].text).find(x=>re.test(x))||sentences(hits[0].text)[0];A.paras.push('“'+s1+'”');cite(hits[0]);return A;
+    }
+    A.paras.push("Nothing in his resume, projects or GitHub READMEs mentions "+skill+" — so I won't claim he knows it. You could ask him directly.");
+    contactActions();return A;
+  }
+  /* a named project: overview + the README sections that best match the question */
+  const pa=PROJ_ALIAS.find(x=>x[0].test(lq));
+  if(pa){
+    const pc=card('proj.'+pa[1]);
+    const wantsDetail=/detail|explain|how|architecture|feature|stack|work|built|deep|everything|tell me/i.test(lq)||toks(lq).length<=2;
+    const generic=new Map(Q);toks(pa[1]).forEach(t=>generic.delete(t));
+    const lead=sentences(pc.text).slice(0,2);
+    if(generic.size)bestSentences(pc,generic,2).forEach(x=>{if(!lead.includes(x)&&toks(x).some(t=>generic.get(t)===1))lead.push(x);});
+    A.paras.push(lead.join(' '));cite(pc);
+    const secs=KB.filter(c=>c.kind==='readme'&&c.src.project===pa[1]);
+    if(secs.length){
+      const scored=secs.map(c=>{let sc=0;const tt=new Set(toks(c.title+' '+c.text));generic.forEach((w,k)=>{if(tt.has(k))sc+=w;});
+        if(/feature|overview|what|about|architecture|how it works|stack|tech/i.test(c.title))sc+=0.6;return {c,sc};}).sort((a,b)=>b.sc-a.sc);
+      scored.slice(0,wantsDetail?4:2).forEach(({c})=>{const s1=bestSentences(c,generic.size?generic:Q,1)[0];if(s1)A.bullets.push(c.title.split(' — ').slice(1).join(' — ')+': '+s1);});
+      cite(scored[0].c);
+    }else if(ghSync!=='ok'&&!GH.at)A.paras.push('(Still syncing his GitHub README — ask again in a moment for more detail.)');
+    const repo=GH.repos.find(r=>repoOf(pc.src.url)&&r.full.toLowerCase()===repoOf(pc.src.url).toLowerCase());
+    if(repo)A.paras.push('GitHub: last updated '+fmtDate(repo.pushed)+(repo.lang?', mostly '+repo.lang:'')+'.');
+    A.actions.push({label:'open source',url:pc.src.url},{label:'open in projects/',run:()=>openProject(pa[1])});
+    return A;
+  }
+  if(/shunya|agritech|fodder|intern(ship)?\b(?!s)/i.test(lq)&&!/looking|open/.test(lq)){
+    const c=card('exp.shunya');A.paras.push(c.text);cite(c);
+    search(raw+' fodder api testing',x=>x.kind==='readme'&&/fodder|api-automation/i.test(x.src.url||''),2).forEach(({c:r})=>{
+      const s1=bestSentences(r,Q,1)[0];if(s1){A.bullets.push(r.title+': '+s1);cite(r);}});
+    return A;
+  }
+  if(/monika|family business/i.test(lq)){const c=card('exp.monika');A.paras.push(c.text);cite(c);cite(card('proj.Monika ERP'));return A;}
+  if(/educat|college|degree|universit|thapar|study|studied|graduat|polytechnic|certif/i.test(lq)){
+    ['edu.thapar','edu.polytechnic','edu.certs'].forEach(id=>{const c=card(id);A.bullets.push(c.text);cite(c);});
+    A.paras.push('Education and certifications:');return A;
+  }
+  if(/latest|recent|lately|currently|right now|these days|new(est)? (project|repo)|working on/i.test(lq)){
+    const own=listedRepos();
+    if(own.length){
+      A.paras.push('Most recent activity on his GitHub:');
+      own.slice(0,5).forEach(r=>A.bullets.push(r.name+(r.desc?' — '+r.desc:'')+' (updated '+fmtDate(r.pushed)+')'));
+      cite(card('gh.overview'));
+    }else A.paras.push('His current focus is ArchiAI, LedgerLens and Monika ERP. (GitHub activity is still syncing.)');
+    return A;
+  }
+  if(/best|strongest|which project|recommend|showcase|demonstrat/i.test(lq)&&/project|role|position|job|show/i.test(lq)){
+    const hits=search(raw,c=>c.kind==='project'&&c.src.project!=='lofi.desktop',3);
+    const list=hits.length?hits:PROJECTS.slice(0,2).map(p=>({c:card('proj.'+p.id)}));
+    A.paras.push(list.length>1?'The projects that match best:':'The project that matches best:');
+    list.slice(0,2).forEach(({c})=>{A.bullets.push(c.title+' — '+bestSentences(c,Q,1)[0]);cite(c);});
+    return A;
+  }
+  if(/project|built|build|portfolio|repos?\b|github|work samples?/i.test(lq)&&!/how many/i.test(lq)){
+    A.paras.push('His main projects:');
+    PROJECTS.forEach(p=>{A.bullets.push(p.id+' — '+sentences(p.desc)[0]);});
+    const own=listedRepos();if(own.length)A.paras.push('Plus '+own.length+' public repositories on GitHub — ask "what is he working on lately?" for the newest.');
+    A.chips.push({label:'projects/',run:()=>openApp('projects')});return A;
+  }
+  if(/how many (repo|project)/i.test(lq)&&GH.repos.length){const c=card('gh.overview');A.paras.push(c.text);cite(c);return A;}
+  if(/skill|stack|technolog|tools|languages?|frameworks?/i.test(lq)){
+    Object.keys(RESUME_SKILLS).forEach(g=>A.bullets.push(g+': '+RESUME_SKILLS[g].join(', ')));
+    A.paras.push('From his resume:');cite(KB.find(c=>c.kind==='skills'));return A;
+  }
+  if(/who|summar|introduc|overview|30 sec|about (him|udai|yourself)|tell me about|resume|cv\b/i.test(lq)){
+    const c=card('me.summary');A.paras.push(c.text);cite(c);A.actions.push({label:'open resume',run:()=>openApp('resume')});return A;
+  }
+  if(/how (do|does) (you|ud\.?ai) work|what are you|who are you/i.test(lq)){const c=card('site.udai');A.paras.push(c.text);return A;}
+  /* everything else: retrieve and quote */
+  const hits=search(raw,null,5);
+  if(!hits.length||hits[0].sc<1.2){
+    A.paras.push("I couldn't find that in his resume, this site or his GitHub, so I won't guess. Try one of the suggestions below, or ask Udai directly.");
+    contactActions();return A;
+  }
+  const top=hits.filter(h=>h.sc>=hits[0].sc*0.55).slice(0,3);
+  let total=0;
+  top.forEach(({c},i)=>{const ss=bestSentences(c,Q,i?1:2);const t=ss.join(' ');if(total+t.length>700)return;total+=t.length;
+    (i?A.bullets:A.paras).push(i?c.title+': '+t:t);cite(c);});
+  return A;
+}
+function copyEmail(){
+  const done=()=>toast('email copied — '+CONFIG.email);
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(CONFIG.email).then(done,()=>toast(CONFIG.email));
+  else toast(CONFIG.email);
+}
+
+/* ---- window ---- */
+let udaiStatusEl=null;
+function udaiStatus(){
+  if(!udaiStatusEl||!udaiStatusEl.isConnected)return;
+  const ago=GH.at?Math.max(1,Math.round((Date.now()-GH.at)/60000)):0;
+  const agoTxt=!GH.at?'':ago<60?ago+' min ago':Math.round(ago/60)+' h ago';
+  udaiStatusEl.textContent=ghSync==='syncing'?'syncing github…'
+    :GH.at?('github synced '+agoTxt+' · '+Object.keys(GH.readmes).length+' readmes')
+    :ghSync==='failed'?'github offline — using resume & site only':'resume & site loaded';
+}
+const UDAI_SUGGEST=['summarize him in 30 seconds','explain ArchiAI in detail','what is LedgerLens?','what did he do at Shunya?',
+  'best project for a backend role','does he know Django?','what is he working on lately?','how do I contact him?'];
+function renderUdai(b){
+  b.classList.add('pad0');
+  b.innerHTML='<div class="ua"><div class="ua-head"><img src="'+iconURL('udai')+'" alt=""><div><b>ud.ai</b>'
+    +'<small class="ua-status"></small></div><button class="btn ua-sync" type="button" title="re-sync from github">sync</button></div>'
+    +'<div class="ua-log" role="log" aria-live="polite"></div>'
+    +'<div class="ua-sug"></div>'
+    +'<form class="ua-in"><label class="vh" for="uaq">ask ud.ai</label><textarea id="uaq" rows="1" maxlength="400" placeholder="ask anything about Udai…"></textarea>'
+    +'<button class="btn gold" type="submit">ask</button></form>'
+    +'<div class="ua-note">answers are quoted from his resume, this site and his github — check the sources.</div></div>';
+  udaiStatusEl=b.querySelector('.ua-status');
+  const log=b.querySelector('.ua-log'),ta=b.querySelector('textarea'),sug=b.querySelector('.ua-sug');
+  UDAI_SUGGEST.forEach(t=>{const c=document.createElement('button');c.type='button';c.className='chip ua-chip';c.textContent=t;c.onclick=()=>ask(t);sug.appendChild(c);});
+  function bubble(cls){const d=document.createElement('div');d.className='ua-msg '+cls;log.appendChild(d);return d;}
+  function show(A){
+    const d=bubble('bot');
+    A.paras.forEach(t=>{const p=document.createElement('p');p.textContent=t;d.appendChild(p);});
+    if(A.bullets.length){const ul=document.createElement('ul');A.bullets.forEach(t=>{const li=document.createElement('li');li.textContent=t;ul.appendChild(li);});d.appendChild(ul);}
+    const row=[].concat(A.actions.map(a=>Object.assign({cls:'btn'},a)),A.chips.map(c=>Object.assign({cls:'chip src'},c)));
+    if(row.length){
+      const r=document.createElement('div');r.className='ua-acts';
+      row.forEach(a=>{let el;
+        if(a.url){el=document.createElement('a');el.href=a.url;el.target='_blank';el.rel='noopener';}
+        else{el=document.createElement('button');el.type='button';el.onclick=a.run;}
+        el.className=a.cls;el.textContent=(a.cls==='chip src'?'↗ ':'')+a.label;r.appendChild(el);});
+      d.appendChild(r);
+    }
+    log.scrollTop=log.scrollHeight;
+  }
+  function ask(q){
+    q=q.trim();if(!q)return;
+    bubble('me').textContent=q;
+    const t=bubble('bot typing');t.innerHTML='<span></span><span></span><span></span>';log.scrollTop=log.scrollHeight;
+    setTimeout(()=>{t.remove();const A=answer(q);if(A)show(A);},REDUCED.matches?0:380);
+  }
+  const send=()=>{const q=ta.value;ta.value='';ask(q);};
+  b.querySelector('.ua-in').onsubmit=e=>{e.preventDefault();send();};
+  ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+  b.querySelector('.ua-sync').onclick=()=>syncGitHub(true);
+  show({paras:["quack — I'm ud.ai. Ask me about Udai's projects, internship, skills, education or how to reach him. I answer only from his resume, this desktop and his public GitHub (synced automatically)."],bullets:[],chips:[],actions:[]});
+  if(!KBIDX)buildKB();
+  udaiStatus();syncGitHub(false);
+  setTimeout(()=>ta.focus(),50);
 }
 
 /* ---------- duck hunt ---------- */
@@ -1512,7 +1971,15 @@ let ghData={};
 let ghLive=false,ghSince='9999-12-31';
 const calCache={};
 let calY=new Date().getFullYear(), calM=new Date().getMonth();
+/* UTC timestamp -> the visitor's local YYYY-MM-DD, so days line up with the grid */
+function localDay(iso){const t=new Date(iso);return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');}
+let ghFetching=null;
 async function fetchGitHub(){
+  if(ghFetching)return ghFetching; /* clock clicks and desktop entry share one fetch */
+  ghFetching=fetchGitHubOnce().then(()=>{if(!ghLive)ghFetching=null;}); /* retry next time if it failed */
+  return ghFetching;
+}
+async function fetchGitHubOnce(){
   try{
     ghData={};
     let page=1,events=[];
@@ -1523,15 +1990,22 @@ async function fetchGitHub(){
       if(!Array.isArray(j)||!j.length)break;
       events=events.concat(j); page++;
     }
+    /* GitHub no longer includes commit counts in public push events, so count
+       contributions the way the profile graph does: each push, opened PR,
+       opened issue and new repo is one contribution. */
     events.forEach(ev=>{
-      if(ev.type==='PushEvent'&&ev.created_at){
-        const d=ev.created_at.slice(0,10);
-        const n=(ev.payload&&Array.isArray(ev.payload.commits))?ev.payload.commits.length:((ev.payload&&ev.payload.size)||0);
-        if(n>0)ghData[d]=(ghData[d]||0)+n;
-      }
+      if(!ev.created_at)return;
+      const a=ev.payload&&ev.payload.action;
+      const counts=ev.type==='PushEvent'
+        ||(ev.type==='PullRequestEvent'&&a==='opened')
+        ||(ev.type==='IssuesEvent'&&a==='opened')
+        ||(ev.type==='CreateEvent'&&ev.payload&&ev.payload.ref_type==='repository');
+      if(!counts)return;
+      const d=localDay(ev.created_at);
+      ghData[d]=(ghData[d]||0)+1;
     });
     if(events.length){
-      ghSince=events.reduce((m,ev)=>ev.created_at&&ev.created_at.slice(0,10)<m?ev.created_at.slice(0,10):m,'9999-12-31');
+      ghSince=events.reduce((m,ev)=>ev.created_at&&localDay(ev.created_at)<m?localDay(ev.created_at):m,'9999-12-31');
       ghLive=true;
       Object.keys(calCache).forEach(k=>delete calCache[k]);
       renderCal();
@@ -1566,12 +2040,12 @@ function renderCal(){
     const isFut=calY===now.getFullYear()&&calM===now.getMonth()&&d>now.getDate();
     const isToday=calY===now.getFullYear()&&calM===now.getMonth()&&d===now.getDate();
     if(!isFut)total+=n;
-    html+='<div class="cal-cell '+lvl(n)+(isFut?' fut':'')+(isToday?' today':'')+(known?'':' nodata')+'" title="'+(known?n+' commit'+(n===1?'':'s'):'no data')+'"><i>'+d+'</i></div>';
+    html+='<div class="cal-cell '+lvl(n)+(isFut?' fut':'')+(isToday?' today':'')+(known?'':' nodata')+'" title="'+(known?n+' contribution'+(n===1?'':'s'):'no data')+'"><i>'+d+'</i></div>';
   }
   $('#calGrid').innerHTML=html;
   const anyKnown=arr.some(v=>v!==null);
-  $('#calTotal').textContent=anyKnown?(total+' commits · '+new Date(calY,calM,1).toLocaleDateString([],{month:'short'})):'no data';
-  $('#calSrc').innerHTML=ghLive?('live · github.com/'+CONFIG.handle+'<br>public activity, last ~90 days'):'github activity unavailable<br>(offline or rate-limited)';
+  $('#calTotal').textContent=anyKnown?(total+' contributions · '+new Date(calY,calM,1).toLocaleDateString([],{month:'short'})):'no data';
+  $('#calSrc').innerHTML=ghLive?('live · github.com/'+CONFIG.handle+'<br>public activity since '+new Date(ghSince+'T00:00').toLocaleDateString([],{day:'numeric',month:'short'})):'github activity unavailable<br>(offline or rate-limited)';
 }
 function toggleCal(){
   const c=$('#calPop');
@@ -1628,7 +2102,7 @@ function buildIcons(){
 function buildStartMenu(){
   const descs={about:'who is behind this',resume:'open & download my resume',skills:'what i can do',
     projects:'things i built',experience:'internships & part-time work',education:'degrees & certifications',
-    code:'a real code sandbox',game:'take a break',contact:'say hello',readme:'start here (has secrets)'};
+    code:'a real code sandbox',game:'take a break',contact:'say hello',readme:'start here (has secrets)',udai:'ask anything about me'};
   const m=$('#startMenu');
   m.innerHTML='<div class="sm-head"><img src="'+iconURL('user')+'" alt="">'
     +'<div><b>'+CONFIG.name+'</b><small>local account</small></div></div>'
@@ -1658,6 +2132,7 @@ function spawnWaddler(fromCode){
   const el=document.createElement('div');el.className='duckw';
   el.style.width=(34+Math.random()*16)+'px';
   el.innerHTML='<img src="'+iconURL('duckA')+'" alt="">';
+  const img=el.querySelector('img'),frameA=iconURL('duckA'),frameB=iconURL('duckB');
   const dir=Math.random()<0.5?1:-1;
   let x=dir>0?-50:innerWidth+50;
   el.style.bottom=(48+Math.random()*40)+'px';el.style.top='auto';
@@ -1668,8 +2143,10 @@ function spawnWaddler(fromCode){
     if(dead||!el.isConnected){clearInterval(iv);return;}
     x+=speed*2;step++;
     const bob=step%12<6?-2:0;
-    el.style.transform='translateX('+x+'px) scaleX('+dir+') translateY('+bob+'px) rotate('+(step%12<6?-3:3)+'deg)';
-    el.querySelector('img').src=step%24<12?iconURL('duckA'):iconURL('duckB');
+    /* flip only the sprite: flipping the whole element also mirrors the "quack" bubble */
+    el.style.transform='translateX('+x+'px) translateY('+bob+'px) rotate('+(step%12<6?-3:3)*dir+'deg)';
+    img.style.transform='scaleX('+dir+')';
+    img.src=step%24<12?frameA:frameB;
     if((dir>0&&x>innerWidth+60)||(dir<0&&x<-70)){clearInterval(iv);el.remove();dead=true;}
   },60);
   el.addEventListener('pointerenter',()=>{el.style.marginBottom='8px';setTimeout(()=>el.style.marginBottom='0',300);});
